@@ -15,7 +15,7 @@
 
 <p align="center">
   <a href="https://palan-k.github.io/llm-wiki-loop">
-    <img src="https://img.shields.io/badge/🌐_Live_Showcase-Interactive_Wheel_Demo-00f2fe?style=for-the-badge&logoColor=black" alt="Live Interactive Showcase" />
+    <img src="https://img.shields.io/badge/%F0%9F%8C%90_Live_Showcase-Interactive_Wheel_Demo-00f2fe?style=for-the-badge&logoColor=black" alt="Live Interactive Showcase" />
   </a>
 </p>
 
@@ -38,26 +38,34 @@ Most LLM notes gradually hallucinate, cite outdated assumptions, or bloat over t
 ```mermaid
 flowchart TD
     subgraph S1["1. Immutable Ingestion"]
-        Raw["raw/notes/ & raw/data/\n(Original benchmark runs, papers, chat logs)"]
+        Raw["raw/notes/ & raw/data/
+(Original benchmark runs, papers, chat logs)"]
     end
 
     subgraph S2["2. Grounded Compilation Loop"]
-        Agent["AI Agent + wiki-manager Skill\n(Claude / Cursor / Codex / Gemini)"]
-        Wiki["wiki/concepts/ & wiki/topics/\n(LLM-synthesized knowledge with Raw: links)"]
-        Index["index.md & log.md\n(Progressive disclosure & audit trail)"]
+        Agent["AI Agent + wiki-manager Skill
+(Claude / Cursor / Codex / Gemini)"]
+        Wiki["wiki/concepts/ & wiki/topics/
+(LLM-synthesized knowledge with Raw: links)"]
+        Index["index.md & log.md
+(Progressive disclosure & audit trail)"]
     end
 
     subgraph S3["3. Mechanical Verification Engine"]
-        Engine["check_evidence.py\n(Grounding Invariant Parser)"]
+        Engine["check_evidence.py
+(Grounding Invariant Parser)"]
         Verdict{"0 Errors?"}
         Pass["✅ 100% Grounded & Verified"]
         Fail["❌ Ungrounded Claim Detected (Block CI)"]
     end
 
     subgraph S4["4. Self-Evolution & Active GC"]
-        Dispute["Status: Outdated / Disputed\n(Preserve historical context)"]
-        Archive["archive/\n(Superseded snapshots, isolated from index)"]
-        Skillify["Auto-Skillification Engine\n(Promote repeated procedures into SKILL.md)"]
+        Dispute["Status: Outdated / Disputed
+(Preserve historical context)"]
+        Archive["archive/
+(Superseded snapshots, isolated from index)"]
+        Skillify["Auto-Skillification Engine
+(Promote repeated procedures into SKILL.md)"]
     end
 
     Raw -->|Triage: New / Update / Disputed| Agent
@@ -92,13 +100,16 @@ flowchart TD
 
 ### Option A: Direct Execution via NPX (No Installation Needed)
 ```bash
-# 1. Scaffold a conformant LLM-wiki vault in your current directory (or ./llm-wiki-loop)
+# 1. Scaffold vault in your project (isolated in ./llm-wiki-loop or target dir)
 npx llm-wiki-loop init
 
-# 2. Check local environment & detect installed AI agent runtimes
+# 2. Inject wiki-manager skill into all installed AI agent runtimes
+npx llm-wiki-loop install
+
+# 3. Check local environment & detect installed AI agent runtimes
 npx llm-wiki-loop doctor
 
-# 3. Verify grounding invariants across your vault
+# 4. Verify grounding invariants across your vault
 npx llm-wiki-loop check .
 ```
 
@@ -116,7 +127,7 @@ set up my vault for <your domain>
 
 ## 🛠️ CLI Commands & Tooling
 
-The built-in CLI (`llm-wiki`) provides an intuitive developer experience across all operating systems (Windows, macOS, Linux):
+The built-in CLI (`llm-wiki` / `llm-wiki-loop`) provides an intuitive developer experience across all operating systems (Windows, macOS, Linux):
 
 ```
 Usage: llm-wiki <command> [options]
@@ -124,8 +135,8 @@ Usage: llm-wiki <command> [options]
 Commands:
   doctor [vaultDir]   Diagnose Python runtime, agent skill directories, and vault schema
   check [vaultDir]    Run mechanical evidence verification (0-hallucination check)
-  init [dir]          Scaffold standard raw/, wiki/, archive/, index.md, and log.md
-  clean [dir]         Clean/uninstall scaffolded vault files safely
+  init [dir]          Scaffold standard vault structure (default: ./llm-wiki-loop or target dir)
+  clean [dir]         Clean/uninstall scaffolded vault files safely (rollback)
   install [options]   Inject wiki-manager skill into detected agent runtimes
   version             Print version
   help                Show help screen
@@ -139,37 +150,58 @@ Options for 'install':
 
 ## 📂 Vault Structure & Responsibilities
 
+llm-wiki-loop supports both **embedded mode** (inside existing apps) and **standalone mode** (dedicated knowledge repo):
+
+### Mode 1: Embedded Vault (Recommended for Existing Projects)
 ```
-<project-root>/
-├── raw/                   # [IMMUTABLE] Sources: notes/, data/, assets/ (Never edited by LLM)
-├── wiki/                  # [LLM-OWNED] Compiled knowledge: concepts/, topics/, references/
-├── archive/               # [SUPERSEDED] Historical snapshots (never cascade-updated)
-├── index.md               # [MAP] Exactly 1 line per active wiki page (progressive disclosure)
-├── log.md                 # [AUDIT] Append-only event log (## [YYYY-MM-DD] op | ...)
-├── AGENTS.md              # [CONSTITUTION] Vault rules & grounding invariants (< 50 lines)
-├── bin/cli.js             # [TOOLING] Cross-platform Node.js + Python runner
-└── skills/wiki-manager/   # [SKILL] Core skill implementing the 6 vault operations
+<your-project>/
+├── .agents/skills/wiki-manager/   # [AGENT SKILL] Codex / Antigravity / Gemini runtime skill
+├── .claude/skills/wiki-manager/   # [AGENT SKILL] Claude Code runtime skill
+├── llm-wiki-loop/                 # [ISOLATED VAULT] Cleanly separated knowledge vault
+│   ├── raw/                       # [IMMUTABLE] Sources: notes/, data/, assets/ (Never edited by LLM)
+│   ├── wiki/                      # [LLM-OWNED] Compiled knowledge: concepts/, topics/, references/
+│   ├── archive/                   # [SUPERSEDED] Historical snapshots (never cascade-updated)
+│   ├── index.md                   # [MAP] Exactly 1 line per active wiki page (progressive disclosure)
+│   ├── log.md                     # [AUDIT] Append-only event log (## [YYYY-MM-DD] op | ...)
+│   └── AGENTS.md                  # [CONSTITUTION] Vault rules & grounding invariants (< 50 lines)
+├── src/                           # Your existing application code
+└── package.json
 ```
+
+### Mode 2: Standalone Knowledge Vault
+```
+<knowledge-vault>/
+├── raw/                           # [IMMUTABLE] Sources: notes/, data/, assets/ (Never edited by LLM)
+├── wiki/                          # [LLM-OWNED] Compiled knowledge: concepts/, topics/, references/
+├── archive/                       # [SUPERSEDED] Historical snapshots (never cascade-updated)
+├── index.md                       # [MAP] Exactly 1 line per active wiki page (progressive disclosure)
+├── log.md                         # [AUDIT] Append-only event log (## [YYYY-MM-DD] op | ...)
+└── AGENTS.md                      # [CONSTITUTION] Vault rules & grounding invariants (< 50 lines)
+```
+
+---
 
 ### The 6 Core Vault Operations
 
-| Operation | Purpose |
-|---|---|
-| `init` | Scaffolds layout, installs skill, establishes schema, and compiles initial seed pages. |
-| `ingest` | Raw source $\rightarrow$ Triage (New / Update / Disputed / No material) $\rightarrow$ Compile $\rightarrow$ Index & Log sync. |
-| `query` | Progressive disclosure query: `index.md` scan $\rightarrow$ targeted full-text retrieval $\rightarrow$ cited answer. |
-| `lint` | 3-tier inspection: schema formatting, mechanical evidence verification, and judgment review. |
-| `loop` | Event-driven GC, auto-skillifying candidate detection, and skill health audits. |
-| `audit` | Evaluates skill coverage against official documentation and live usage logs. |
+Every conformant agent strictly adheres to the 6 vault lifecycle operations:
+
+| Operation | Purpose | Lifecycle Flow |
+|---|---|---|
+| `init` | **Bootstrap**: Scaffolds layout, installs agent skills, establishes schema, and sets up index/log. | CLI / Agent $\rightarrow$ Scaffold $\rightarrow$ Schema verification |
+| `ingest` | **Knowledge Absorption**: Raw sources $\rightarrow$ 4-tier triage $\rightarrow$ Compiled knowledge with verbatim `Raw:` links. | `raw/` $\rightarrow$ Triage (New / Update / Disputed) $\rightarrow$ `wiki/` $\rightarrow$ Sync `index.md` & `log.md` |
+| `query` | **Progressive Disclosure**: High-precision answer retrieval with minimal token consumption. | Read `index.md` (L1) $\rightarrow$ Targeted `wiki/` page read (L2) $\rightarrow$ Synthesize with citations |
+| `lint` | **3-Tier Health Check**: Structural formatting, mechanical evidence verification, and judgment review. | Schema check $\rightarrow$ `check_evidence.py` $\rightarrow$ Fix ungrounded claims |
+| `loop` | **Self-Evolution & GC**: Event-driven garbage collection and auto-skillification of repeated solutions. | Detect outdated facts $\rightarrow$ Move to `archive/` $\rightarrow$ Detect 2+ recurring patterns $\rightarrow$ Promote to `SKILL.md` |
+| `audit` | **Skill Coverage Audit**: Evaluates existing skills against official docs and execution logs. | Log inspection $\rightarrow$ Gap analysis $\rightarrow$ Skill refinement |
 
 ---
 
 ## 🧠 Seamless Integration with Obsidian & AI IDEs
 
 Because **llm-wiki-loop** relies exclusively on plain Markdown, it fits naturally into existing workflows:
-- **Obsidian**: Open the repository folder directly. Configure `raw/assets/` as the attachment folder for screenshots and research papers.
+- **Obsidian**: Open the repository or `llm-wiki-loop/` folder directly. Configure `raw/assets/` as the attachment folder for screenshots and research papers.
 - **Cursor & Windsurf**: Rules and skills reside in `.cursor/skills/` or `.windsurf/skills/`, instantly empowering the in-editor agent.
-- **Claude Code & Codex**: Uses standard `.claude/skills/` and `.agents/skills/` distribution for zero-setup command line execution.
+- **Claude Code, Codex & Gemini**: Uses standard `.claude/skills/` and `.agents/skills/` distribution for zero-setup command line execution.
 
 ---
 
