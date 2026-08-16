@@ -29,7 +29,7 @@ Most LLM notes gradually hallucinate, cite outdated assumptions, or bloat over t
 - 🛡️ **0-Hallucination Machine Grounding**: Every number, date, and quote in `wiki/` is mechanically verified against immutable `raw/` sources using `check_evidence.py`.
 - ♻️ **Self-Organizing Vault**: Outdated facts are automatically tagged `Status: Outdated` or `Status: Disputed` and archived—never deleted, preserving complete historical fidelity.
 - ⚡ **Auto-Skillify Evolution**: Repeated solutions and error fixes (2+ times) logged in `log.md` are automatically promoted into reusable agent skills.
-- 🎯 **Zero Friction for Beginners**: One command (`npx llm-wiki init`) instantly equips **Claude Code, Cursor, Codex, OpenCode, Gemini, Windsurf, and CommandCode** with structured knowledge.
+- 🎯 **Zero Friction for Beginners**: One command (`npx llm-wiki-loop init`) instantly equips **Claude Code, Cursor, Codex, OpenCode, Gemini, Windsurf, and CommandCode** with structured knowledge.
 
 ---
 
@@ -93,13 +93,13 @@ flowchart TD
 ### Option A: Direct Execution via NPX (No Installation Needed)
 ```bash
 # 1. Scaffold a conformant LLM-wiki vault in your current directory
-npx llm-wiki init
+npx llm-wiki-loop init
 
 # 2. Check local environment & detect installed AI agent runtimes
-npx llm-wiki doctor
+npx llm-wiki-loop doctor
 
 # 3. Verify grounding invariants across your vault
-npx llm-wiki check .
+npx llm-wiki-loop check .
 ```
 
 ### Option B: Global Installation (Auto-injects to AI Runtimes)
@@ -185,4 +185,5 @@ We welcome contributions from the open-source community!
 - **License**: [MIT](LICENSE)
 - **Conceptual Grounding**: The LLM-Wiki pattern (immutable raw sources, LLM-compiled wiki, grounding loop) originated from [Andrej Karpathy's gist](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f) (2026-04-04).
 - `check_evidence.py` is adapted from [Astro-Han/karpathy-llm-wiki](https://github.com/Astro-Han/karpathy-llm-wiki) (MIT).
+
 
