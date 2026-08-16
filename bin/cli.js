@@ -82,10 +82,11 @@ Usage:
   llm-wiki <command> [options]
 
 Commands:
-  doctor              Diagnose local environment, Python runtime, and agent skills
+  doctor [vaultDir]   Diagnose local environment, Python runtime, and agent skills
   check [vaultDir]    Run machine verification on grounding invariants
   install [options]   Install wiki-manager skill into detected agent runtimes
-  init [dir]          Scaffold a new LLM-wiki conformant vault structure
+  init [dir]          Scaffold standard vault structure (default: ./llm-wiki-loop or current dir)
+  clean [dir]         Clean/uninstall scaffolded vault files safely
   version, --version  Print version information
   help, --help        Show this help message
 
@@ -95,7 +96,7 @@ Options for 'install':
 `);
 }
 
-function runDoctor() {
+function runDoctor(targetDir) {
   console.log(`=== llm-wiki Doctor (v${PKG.version}) ===\n`);
 
   // 1. Python Check
@@ -136,12 +137,16 @@ function runDoctor() {
   }
 
   // 4. Vault Structure Check
-  console.log(`\n--- Local Vault Schema Check ---`);
-  const cwd = process.cwd();
+  let vaultDir = targetDir ? path.resolve(targetDir) : process.cwd();
+  if (!targetDir && !fs.existsSync(path.join(vaultDir, 'index.md')) && fs.existsSync(path.join(vaultDir, 'llm-wiki-loop'))) {
+    vaultDir = path.join(vaultDir, 'llm-wiki-loop');
+  }
+
+  console.log(`\n--- Local Vault Schema Check (${vaultDir}) ---`);
   const requiredPaths = ['raw', 'wiki', 'archive', 'index.md', 'log.md', 'AGENTS.md'];
   let vaultValid = true;
   for (const p of requiredPaths) {
-    const fullPath = path.join(cwd, p);
+    const fullPath = path.join(vaultDir, p);
     if (fs.existsSync(fullPath)) {
       console.log(`[✓] ${p}`);
     } else {
@@ -150,14 +155,18 @@ function runDoctor() {
     }
   }
   if (vaultValid) {
-    console.log(`\n[✓] Current directory is a conformant LLM-wiki vault.`);
+    console.log(`\n[✓] Target directory is a conformant LLM-wiki vault.`);
   } else {
     console.log(`\n[i] Run 'llm-wiki init' to scaffold a conformant vault.`);
   }
 }
 
 function runCheck(targetDir) {
-  const vaultPath = targetDir ? path.resolve(targetDir) : process.cwd();
+  let vaultPath = targetDir ? path.resolve(targetDir) : process.cwd();
+  if (!targetDir && !fs.existsSync(path.join(vaultPath, 'index.md')) && fs.existsSync(path.join(vaultPath, 'llm-wiki-loop'))) {
+    vaultPath = path.join(vaultPath, 'llm-wiki-loop');
+  }
+
   const py = resolvePython();
   if (!py) {
     console.error(`Error: Python runtime not found. Python 3.8+ is required to run verification.`);
@@ -274,6 +283,36 @@ function runInit(targetDir) {
   console.log(`\nVault scaffolded successfully! Place sources in raw/notes/ and prompt your AI agent to compile knowledge.`);
 }
 
+function runClean(targetDir) {
+  const root = targetDir ? path.resolve(targetDir) : process.cwd();
+  console.log(`Cleaning LLM-wiki vault files in: ${root}\n`);
+
+  const itemsToRemove = [
+    'raw',
+    'wiki',
+    'archive',
+    'index.md',
+    'log.md',
+    'agent.md'
+  ];
+
+  let count = 0;
+  for (const item of itemsToRemove) {
+    const target = path.join(root, item);
+    if (fs.existsSync(target)) {
+      fs.rmSync(target, { recursive: true, force: true });
+      console.log(`Removed: ${item}`);
+      count++;
+    }
+  }
+
+  if (count > 0) {
+    console.log(`\nClean completed! ${count} vault items removed.`);
+  } else {
+    console.log(`No vault items found in ${root}.`);
+  }
+}
+
 function main() {
   const args = process.argv.slice(2);
   const command = args[0];
@@ -290,7 +329,7 @@ function main() {
 
   switch (command) {
     case 'doctor':
-      runDoctor();
+      runDoctor(args[1]);
       break;
     case 'check':
       runCheck(args[1]);
@@ -300,6 +339,9 @@ function main() {
       break;
     case 'init':
       runInit(args[1]);
+      break;
+    case 'clean':
+      runClean(args[1]);
       break;
     default:
       console.error(`Unknown command: ${command}`);
