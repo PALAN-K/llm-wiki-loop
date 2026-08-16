@@ -1,0 +1,311 @@
+#!/usr/bin/env node
+
+/**
+ * llm-wiki-loop CLI
+ * Reference CLI for LLM-maintained knowledge vaults.
+ */
+
+const fs = require('fs');
+const os = require('os');
+const path = require('path');
+const { spawnSync } = require('child_process');
+
+const PKG = require('../package.json');
+const SKILL_SRC = path.join(__dirname, '..', 'skills', 'wiki-manager');
+const CHECK_SCRIPT = path.join(SKILL_SRC, 'scripts', 'check_evidence.py');
+const HOME = os.homedir();
+
+const GLOBAL_RUNTIMES = [
+  { name: 'Claude Code', marker: path.join(HOME, '.claude'), dir: path.join(HOME, '.claude', 'skills') },
+  { name: 'OpenCode', marker: path.join(HOME, '.config', 'opencode'), dir: path.join(HOME, '.config', 'opencode', 'skills') },
+  { name: 'Agents / Codex', marker: path.join(HOME, '.agents'), dir: path.join(HOME, '.agents', 'skills') },
+  { name: 'Cursor', marker: path.join(HOME, '.cursor'), dir: path.join(HOME, '.cursor', 'skills') },
+  { name: 'Gemini', marker: path.join(HOME, '.gemini'), dir: path.join(HOME, '.gemini', 'skills') },
+  { name: 'CommandCode', marker: path.join(HOME, '.commandcode'), dir: path.join(HOME, '.commandcode', 'skills') },
+  { name: 'Windsurf', marker: path.join(HOME, '.windsurf'), dir: path.join(HOME, '.windsurf', 'skills') },
+];
+
+const PROJECT_RUNTIMES = [
+  { name: 'Claude Code', folder: '.claude' },
+  { name: 'OpenCode', folder: '.opencode' },
+  { name: 'Agents / Codex', folder: '.agents' },
+  { name: 'Cursor', folder: '.cursor' },
+  { name: 'Gemini', folder: '.gemini' },
+  { name: 'CommandCode', folder: '.commandcode' },
+  { name: 'Windsurf', folder: '.windsurf' },
+];
+
+function resolvePython() {
+  const candidates = process.platform === 'win32'
+    ? ['py', 'python', 'python3']
+    : ['python3', 'python'];
+
+  for (const cmd of candidates) {
+    try {
+      const res = spawnSync(cmd, ['--version'], { stdio: 'pipe', encoding: 'utf-8' });
+      if (res.status === 0) {
+        const ver = (res.stdout || res.stderr || '').trim();
+        return { cmd, version: ver };
+      }
+    } catch {
+      // ignore ENOENT
+    }
+  }
+  return null;
+}
+
+function copySkill(destDir) {
+  const dest = path.join(destDir, 'wiki-manager');
+  fs.mkdirSync(destDir, { recursive: true });
+  fs.cpSync(SKILL_SRC, dest, { recursive: true, force: true });
+  return dest;
+}
+
+function findProjectRoot(start) {
+  let dir = start;
+  while (true) {
+    if (fs.existsSync(path.join(dir, 'package.json')) || fs.existsSync(path.join(dir, '.git'))) {
+      return dir;
+    }
+    const parent = path.dirname(dir);
+    if (parent === dir) return null;
+    dir = parent;
+  }
+}
+
+function printHelp() {
+  console.log(`
+llm-wiki-loop v${PKG.version}
+The reference architecture for LLM-maintained knowledge vaults.
+
+Usage:
+  llm-wiki <command> [options]
+
+Commands:
+  doctor              Diagnose local environment, Python runtime, and agent skills
+  check [vaultDir]    Run machine verification on grounding invariants
+  install [options]   Install wiki-manager skill into detected agent runtimes
+  init [dir]          Scaffold a new LLM-wiki conformant vault structure
+  version, --version  Print version information
+  help, --help        Show this help message
+
+Options for 'install':
+  --global, -g        Install globally to detected user home runtimes
+  --custom <path>     Install to a custom skill directory
+`);
+}
+
+function runDoctor() {
+  console.log(`=== llm-wiki Doctor (v${PKG.version}) ===\n`);
+
+  // 1. Python Check
+  const py = resolvePython();
+  if (py) {
+    console.log(`[✓] Python Runtime: Detected (${py.cmd} -> ${py.version})`);
+  } else {
+    console.log(`[✗] Python Runtime: NOT found in PATH.`);
+    console.log(`    Evidence checks require Python 3.8+. Please install from https://python.org`);
+  }
+
+  // 2. Global Agent Runtimes
+  console.log(`\n--- Global Agent Runtimes (~/) ---`);
+  let globalFound = 0;
+  for (const r of GLOBAL_RUNTIMES) {
+    const exists = fs.existsSync(r.marker);
+    const skillInstalled = fs.existsSync(path.join(r.dir, 'wiki-manager', 'SKILL.md'));
+    if (exists) {
+      globalFound++;
+      console.log(`[✓] ${r.name.padEnd(16)}: Found (${r.marker}) | Skill: ${skillInstalled ? 'Installed' : 'Not installed'}`);
+    }
+  }
+  if (globalFound === 0) {
+    console.log(`[-] No global agent directories found.`);
+  }
+
+  // 3. Project Runtimes
+  const root = findProjectRoot(process.cwd());
+  console.log(`\n--- Current Project Scope (${root || process.cwd()}) ---`);
+  if (root) {
+    for (const r of PROJECT_RUNTIMES) {
+      const base = path.join(root, r.folder);
+      if (fs.existsSync(base)) {
+        const skillInstalled = fs.existsSync(path.join(base, 'skills', 'wiki-manager', 'SKILL.md'));
+        console.log(`[✓] ${r.name.padEnd(16)}: Found (${base}) | Skill: ${skillInstalled ? 'Installed' : 'Not installed'}`);
+      }
+    }
+  }
+
+  // 4. Vault Structure Check
+  console.log(`\n--- Local Vault Schema Check ---`);
+  const cwd = process.cwd();
+  const requiredPaths = ['raw', 'wiki', 'archive', 'index.md', 'log.md', 'AGENTS.md'];
+  let vaultValid = true;
+  for (const p of requiredPaths) {
+    const fullPath = path.join(cwd, p);
+    if (fs.existsSync(fullPath)) {
+      console.log(`[✓] ${p}`);
+    } else {
+      console.log(`[!] ${p} (missing)`);
+      vaultValid = false;
+    }
+  }
+  if (vaultValid) {
+    console.log(`\n[✓] Current directory is a conformant LLM-wiki vault.`);
+  } else {
+    console.log(`\n[i] Run 'llm-wiki init' to scaffold a conformant vault.`);
+  }
+}
+
+function runCheck(targetDir) {
+  const vaultPath = targetDir ? path.resolve(targetDir) : process.cwd();
+  const py = resolvePython();
+  if (!py) {
+    console.error(`Error: Python runtime not found. Python 3.8+ is required to run verification.`);
+    process.exit(1);
+  }
+
+  console.log(`Checking vault at: ${vaultPath}`);
+  console.log(`Using Python executable: ${py.cmd} (${py.version})\n`);
+
+  const res = spawnSync(py.cmd, [CHECK_SCRIPT, vaultPath], { stdio: 'inherit' });
+  if (res.status !== 0) {
+    process.exit(res.status || 1);
+  }
+}
+
+function runInstall(args) {
+  const isGlobal = args.includes('--global') || args.includes('-g');
+  const customIdx = args.indexOf('--custom');
+  const customDir = customIdx !== -1 && args[customIdx + 1] ? args[customIdx + 1] : process.env.SKILL_DIR;
+
+  const installed = [];
+
+  if (customDir) {
+    try {
+      installed.push(copySkill(customDir));
+    } catch (err) {
+      console.warn(`Could not install to custom dir ${customDir}: ${err.message}`);
+    }
+  }
+
+  if (isGlobal) {
+    for (const r of GLOBAL_RUNTIMES) {
+      if (fs.existsSync(r.marker)) {
+        try {
+          installed.push(copySkill(r.dir));
+        } catch (err) {
+          console.warn(`Could not install to ${r.dir}: ${err.message}`);
+        }
+      }
+    }
+  } else {
+    const root = findProjectRoot(process.cwd());
+    if (root) {
+      for (const r of PROJECT_RUNTIMES) {
+        const base = path.join(root, r.folder);
+        if (fs.existsSync(base)) {
+          try {
+            installed.push(copySkill(path.join(base, 'skills')));
+          } catch (err) {
+            console.warn(`Could not install to ${base}: ${err.message}`);
+          }
+        }
+      }
+    }
+  }
+
+  if (installed.length > 0) {
+    console.log(`\nSuccessfully installed wiki-manager skill to:`);
+    for (const dest of installed) {
+      console.log(`  - ${dest}`);
+    }
+    console.log(`\nRestart your agent runtime to activate.`);
+  } else {
+    console.log(`No supported agent runtime found. Use --global or specify --custom <path>.`);
+  }
+}
+
+function runInit(targetDir) {
+  const root = targetDir ? path.resolve(targetDir) : process.cwd();
+  console.log(`Scaffolding LLM-wiki vault in: ${root}\n`);
+
+  const dirs = [
+    'raw/notes',
+    'raw/data',
+    'raw/assets',
+    'wiki/concepts',
+    'wiki/topics',
+    'wiki/references',
+    'archive',
+  ];
+
+  for (const d of dirs) {
+    const full = path.join(root, d);
+    if (!fs.existsSync(full)) {
+      fs.mkdirSync(full, { recursive: true });
+      console.log(`Created: ${d}/`);
+    }
+  }
+
+  const indexFile = path.join(root, 'index.md');
+  if (!fs.existsSync(indexFile)) {
+    fs.writeFileSync(indexFile, `# Knowledge Vault Index\n\n- (no pages compiled yet)\n`, 'utf-8');
+    console.log(`Created: index.md`);
+  }
+
+  const logFile = path.join(root, 'log.md');
+  if (!fs.existsSync(logFile)) {
+    const today = new Date().toISOString().split('T')[0];
+    fs.writeFileSync(logFile, `# Vault Audit Log\n\n## [${today}] init | Vault initialized via llm-wiki CLI\n`, 'utf-8');
+    console.log(`Created: log.md`);
+  }
+
+  const agentsFile = path.join(root, 'AGENTS.md');
+  if (!fs.existsSync(agentsFile)) {
+    const templateSrc = path.join(SKILL_SRC, 'references', 'templates.md');
+    let content = `# AGENTS.md — Knowledge Vault Constitution\n\n`;
+    if (fs.existsSync(templateSrc)) {
+      content = fs.readFileSync(path.join(__dirname, '..', 'AGENTS.md'), 'utf-8');
+    }
+    fs.writeFileSync(agentsFile, content, 'utf-8');
+    console.log(`Created: AGENTS.md`);
+  }
+
+  console.log(`\nVault scaffolded successfully! Place sources in raw/notes/ and prompt your AI agent to compile knowledge.`);
+}
+
+function main() {
+  const args = process.argv.slice(2);
+  const command = args[0];
+
+  if (!command || command === 'help' || command === '--help' || command === '-h') {
+    printHelp();
+    return;
+  }
+
+  if (command === 'version' || command === '--version' || command === '-v') {
+    console.log(`llm-wiki-loop v${PKG.version}`);
+    return;
+  }
+
+  switch (command) {
+    case 'doctor':
+      runDoctor();
+      break;
+    case 'check':
+      runCheck(args[1]);
+      break;
+    case 'install':
+      runInstall(args.slice(1));
+      break;
+    case 'init':
+      runInit(args[1]);
+      break;
+    default:
+      console.error(`Unknown command: ${command}`);
+      printHelp();
+      process.exit(1);
+  }
+}
+
+main();

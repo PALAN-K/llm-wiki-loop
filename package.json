@@ -1,0 +1,46 @@
+{
+  "name": "llm-wiki-loop",
+  "version": "1.0.0",
+  "description": "The reference architecture for LLM-maintained knowledge vaults — schema, lifecycle loop, machine verification, self-installation. Installs the wiki-manager skill into your agent runtime (Claude Code, Codex CLI, opencode).",
+  "license": "MIT",
+  "keywords": [
+    "llm-wiki",
+    "karpathy",
+    "agent-skills",
+    "knowledge-vault",
+    "second-brain",
+    "self-improving",
+    "claude-code",
+    "codex",
+    "opencode",
+    "obsidian",
+    "skills"
+  ],
+  "bin": {
+    "llm-wiki": "bin/cli.js",
+    "llm-wiki-loop": "bin/cli.js"
+  },
+  "files": [
+    "bin",
+    "skills",
+    "scripts",
+    "README.md",
+    "SPEC.md",
+    "AGENTS.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "lint": "node --check bin/cli.js && node --check scripts/install.js",
+    "test": "py -m unittest discover -s tests",
+    "test:cli": "node bin/cli.js doctor",
+    "postinstall": "node scripts/install.js"
+  },
+  "engines": {
+    "node": ">=16.17"
+  },
+  "homepage": "https://github.com/PALAN-K/llm-wiki-loop#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PALAN-K/llm-wiki-loop.git"
+  }
+}
