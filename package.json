@@ -1,0 +1,46 @@
+{
+    "name": "llm-wiki-loop",
+    "version": "1.1.1",
+    "description": "The production framework for self-improving & self-organizing LLM knowledge vaults — grounding invariants, code drift detection, auto-skillification, and 1-click multi-agent setup.",
+    "license":  "MIT",
+    "keywords":  [
+                     "llm-wiki",
+                     "karpathy",
+                     "agent-skills",
+                     "knowledge-vault",
+                     "second-brain",
+                     "self-improving",
+                     "claude-code",
+                     "codex",
+                     "opencode",
+                     "obsidian",
+                     "skills"
+                 ],
+    "bin":  {
+                "llm-wiki":  "bin/cli.js",
+                "llm-wiki-loop":  "bin/cli.js"
+            },
+    "files":  [
+                  "bin",
+                  "skills",
+                  "scripts",
+                  "README.md",
+                  "SPEC.md",
+                  "AGENTS.md",
+                  "LICENSE"
+              ],
+    "scripts":  {
+                    "lint":  "node --check bin/cli.js \u0026\u0026 node --check scripts/install.js",
+                    "test":  "py -m unittest discover -s tests",
+                    "test:cli":  "node bin/cli.js doctor",
+                    "postinstall":  "node scripts/install.js"
+                },
+    "engines":  {
+                    "node":  "\u003e=16.17"
+                },
+    "homepage":  "https://github.com/PALAN-K/llm-wiki-loop#readme",
+    "repository":  {
+                       "type":  "git",
+                       "url":  "git+https://github.com/PALAN-K/llm-wiki-loop.git"
+                   }
+}

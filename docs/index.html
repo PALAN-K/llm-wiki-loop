@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>llm-wiki-loop — The Production Framework for Self-Improving LLM Knowledge Vaults</title>
+  <meta name="description" content="Reference architecture and production framework for LLM-maintained knowledge vaults. Mechanically verified grounding, event-driven GC, auto-skillification, and multi-agent 1-click injection.">
+  
+  <!-- Open Graph / Meta -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="llm-wiki-loop — Grounded, Self-Improving Knowledge Vaults for AI Agents">
+  <meta property="og:description" content="Zero hallucinations. Self-organizing lifecycle. 1-click injection into Claude Code, Cursor, Codex, OpenCode, Gemini, and Windsurf.">
+  <meta property="og:url" content="https://palan-k.github.io/llm-wiki-loop">
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="bg-grid"></div>
+
+  <!-- Navbar -->
+  <header class="header">
+    <div class="container nav">
+      <a href="#" class="logo">
+        <span>⚡ llm-wiki-loop</span>
+        <span class="logo-badge">v1.0.0</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="#lifecycle" class="nav-link">Architecture</a></li>
+        <li><a href="#quickstart" class="nav-link">Quickstart</a></li>
+        <li><a href="#ecosystem" class="nav-link">Multi-Agent</a></li>
+        <li><a href="https://github.com/PALAN-K/llm-wiki-loop/blob/master/SPEC.md" class="nav-link" target="_blank">Spec</a></li>
+      </ul>
+      <a href="https://github.com/PALAN-K/llm-wiki-loop" target="_blank" class="btn-github" id="btn-header-github">
+        <svg height="18" width="18" viewBox="0 0 16 16" fill="currentColor">
+          <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+        </svg>
+        <span>Star on GitHub</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <main>
+    <section class="hero">
+      <div class="container">
+        <div class="badge-tag">
+          <span class="pulse"></span>
+          <span>Open Agent Skills Standard Compliant</span>
+        </div>
+        
+        <h1 class="hero-title">
+          The Production Framework for<br>
+          <span class="gradient-text">Self-Improving Knowledge Vaults</span>
+        </h1>
+        
+        <p class="hero-desc">
+          Stop AI drift and hallucination. Transform chaotic AI notes into a mechanically verified, self-organizing second brain that automatically promotes frequent fixes into reusable agent skills.
+        </p>
+
+        <div class="hero-cta-group">
+          <a href="#quickstart" class="btn-primary" id="btn-hero-start">🚀 Get Started in 1 Line</a>
+          <a href="https://github.com/PALAN-K/llm-wiki-loop" target="_blank" class="btn-secondary" id="btn-hero-gh">⭐ View on GitHub</a>
+        </div>
+
+        <!-- Terminal Simulator -->
+        <div class="terminal-wrapper" id="term-container">
+          <div class="terminal-header">
+            <div class="terminal-dots">
+              <span class="dot red"></span>
+              <span class="dot yellow"></span>
+              <span class="dot green"></span>
+            </div>
+            <div class="terminal-title">bash — npx llm-wiki init</div>
+            <button class="btn-copy-term" id="btn-copy-term" title="Copy command">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+              <span id="copy-text">Copy</span>
+            </button>
+          </div>
+          <div class="terminal-body" id="term-body">
+            <div class="term-line">
+              <span class="prompt-sym">❯</span>
+              <span class="term-cmd" id="typing-cmd"></span>
+              <span class="term-cursor" id="cursor"></span>
+            </div>
+            <div class="term-output" id="term-output" style="display: none;">
+              <p>Scaffolding LLM-wiki vault in: <span class="accent">./my-vault</span></p>
+              <p>Created: <span class="success">raw/notes/</span>, <span class="success">wiki/topics/</span>, <span class="success">archive/</span></p>
+              <p>Created: <span class="accent">index.md</span> & <span class="accent">log.md</span> (audit log)</p>
+              <p>Auto-detected agents: <span class="success">Claude Code ✓</span>, <span class="success">Cursor ✓</span>, <span class="success">Gemini ✓</span></p>
+              <p class="success">✨ Vault scaffolded successfully! Run 'npx llm-wiki check .' to verify grounding.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Interactive Wheel Scroll Section -->
+    <section class="wheel-section" id="lifecycle">
+      <div class="container">
+        <div class="section-head">
+          <h2>🧬 The Self-Organizing Lifecycle</h2>
+          <p>Rotate through the 4-stage closed loop that powers autonomous vault evolution.</p>
+        </div>
+
+        <div class="wheel-container" id="wheel-interactive-box">
+          <!-- Step Nav -->
+          <div class="wheel-nav">
+            <div class="wheel-step active" data-step="1" id="step-btn-1">
+              <div class="step-num">01</div>
+              <div class="step-content">
+                <h3>1. Immutable Ingestion (Raw)</h3>
+                <p>Never edited by LLM. Original notes, benchmark runs, papers, and logs are stored as ground truth.</p>
+              </div>
+            </div>
+
+            <div class="wheel-step" data-step="2" id="step-btn-2">
+              <div class="step-num">02</div>
+              <div class="step-content">
+                <h3>2. Grounded Compilation</h3>
+                <p>AI agent compiles raw sources into concise wiki pages with mandatory <code>Raw:</code> provenance links.</p>
+              </div>
+            </div>
+
+            <div class="wheel-step" data-step="3" id="step-btn-3">
+              <div class="step-num">03</div>
+              <div class="step-content">
+                <h3>3. Mechanical Invariant Check</h3>
+                <p><code>check_evidence.py</code> verifies every number, date, and quote against raw bodies. 0-error rule.</p>
+              </div>
+            </div>
+
+            <div class="wheel-step" data-step="4" id="step-btn-4">
+              <div class="step-num">04</div>
+              <div class="step-content">
+                <h3>4. Self-Organizing GC & Auto-Skillify</h3>
+                <p>Outdated facts are archived (never deleted). Repeated fixes (2+) automatically evolve into reusable skills.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Interactive Display Screen -->
+          <div class="wheel-display" id="wheel-display">
+            <!-- Card 1 -->
+            <div class="display-card active" id="card-1">
+              <span class="card-badge">STAGE 1 : IMMUTABILITY</span>
+              <h4>Source of Truth Ingestion</h4>
+              <p>All human thoughts, logs, and external data land in <code>raw/notes/</code> and remain immutable forever.</p>
+              <div class="code-preview"># raw/notes/2026-08-16-benchmark.md
+> Source: Performance Team
+Published on 2026-08-16.
+Latency: 15.0ms under 1,000 requests.</div>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="display-card" id="card-2">
+              <span class="card-badge">STAGE 2 : GROUNDED COMPILATION</span>
+              <h4>Provenance Linking</h4>
+              <p>Agents synthesize insights and attach explicit provenance links. No claim without evidence.</p>
+              <div class="code-preview"># wiki/topics/latency-profile.md
+> Raw: [Benchmark](../../raw/notes/2026-08-16-benchmark.md)
+
+Latency is 15.0ms at 1,000 req scale.</div>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="display-card" id="card-3">
+              <span class="card-badge">STAGE 3 : MACHINE LINTER</span>
+              <h4>0-Hallucination Evidence Check</h4>
+              <p>Strict mechanical matching checks candidate dates, grouped numbers, and quoted strings.</p>
+              <div class="code-preview">❯ npx llm-wiki check .
+# Evidence check
+0 fidelity suspects, 0 evidence errors
+✅ 100% Mechanically Grounded</div>
+            </div>
+
+            <!-- Card 4 -->
+            <div class="display-card" id="card-4">
+              <span class="card-badge">STAGE 4 : AUTO-EVOLUTION</span>
+              <h4>Autonomous Skill Promotion</h4>
+              <p>When a fix appears twice in <code>log.md</code>, the system proposes promoting it into a permanent skill.</p>
+              <div class="code-preview">Auto-Skillify Trigger:
+Pattern detected 2+ times in log.md
+👉 Proposed: .agents/skills/fix-db-timeout/</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Multi-Agent Matrix -->
+    <section class="ecosystem-section" id="ecosystem">
+      <div class="container">
+        <div class="section-head">
+          <h2>🌐 1-Click Multi-Agent Compatibility</h2>
+          <p>Inject standardized skills into all your favorite AI coding assistants with zero configuration.</p>
+        </div>
+
+        <div class="grid-cards">
+          <div class="eco-card">
+            <div class="eco-icon">🤖</div>
+            <h3>Claude Code</h3>
+            <p>Direct integration with <code>~/.claude/skills</code> for terminal agent pairing.</p>
+            <span class="badge">Auto-Detected</span>
+          </div>
+
+          <div class="eco-card">
+            <div class="eco-icon">⚡</div>
+            <h3>Cursor & Windsurf</h3>
+            <p>Project-level <code>.cursor/skills/</code> and rules support for seamless in-editor context.</p>
+            <span class="badge">Auto-Detected</span>
+          </div>
+
+          <div class="eco-card">
+            <div class="eco-icon">🧠</div>
+            <h3>Gemini & OpenCode</h3>
+            <p>Full support for <code>.gemini/skills</code> and open agent specifications.</p>
+            <span class="badge">Auto-Detected</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Quickstart Section -->
+    <section class="hero" id="quickstart" style="padding-top: 20px;">
+      <div class="container">
+        <div class="section-head">
+          <h2>🚀 Start in 10 Seconds</h2>
+          <p>Initialize your first self-improving knowledge vault right now.</p>
+        </div>
+        <div style="display: inline-block; background: #0d1117; border: 1px solid var(--border-subtle); padding: 18px 32px; border-radius: var(--radius-md); font-family: var(--font-mono); font-size: 1.2rem; color: var(--accent-cyan); box-shadow: var(--shadow-glow);">
+          npx llm-wiki init
+        </div>
+        <div style="margin-top: 28px;">
+          <a href="https://github.com/PALAN-K/llm-wiki-loop" target="_blank" class="btn-primary">⭐ Star & Read Full Docs on GitHub</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <p>Built with ❤️ by <a href="https://github.com/PALAN-K" target="_blank">PALAN-K</a>. Inspired by Andrej Karpathy's LLM-Wiki Pattern.</p>
+      <p style="margin-top: 8px; font-size: 0.8rem; color: var(--text-muted);">Released under the MIT License.</p>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
