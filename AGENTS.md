@@ -1,54 +1,24 @@
-# AGENTS.md — llm-wiki-loop vault schema
+# AGENTS.md — llm-wiki-loop vault schema (canonical)
 
-This repository is a reference architecture for LLM-maintained knowledge vaults
-(see SPEC.md). It dogfoods itself: this repo is also a conformant vault.
+Reference architecture for LLM-maintained vaults (SPEC.md). CLAUDE.md/GEMINI.md point here.
 
-Canonical schema file is this one. CLAUDE.md and GEMINI.md are one-line
-pointers here for runtimes that read them.
-
-## Layout (fixed — do not deviate)
-
-```
-raw/      immutable sources — never write, never edit (notes/ data/ assets/)
-wiki/     LLM-owned compiled knowledge — you may read, you write (concepts/ topics/ references/)
-archive/  fully superseded pages — snapshots, never cascade-updated, not in index
-index.md  one line per wiki page, updated on every write
-log.md    append-only audit log, parseable prefix "## [YYYY-MM-DD] op | ..."
-SPEC.md   the architecture spec (the product). README.md — landing page.
-skills/wiki-manager/  the skill's distribution source (the second product)
-AGENTS.md this file (canonical schema). CLAUDE.md/GEMINI.md point here — keep them pointers
-```
+## Layout (fixed)
+raw/ (immutable) | wiki/ (LLM-owned) | archive/ (superseded) | index.md | log.md | SPEC.md | skills/wiki-manager/
 
 ## Rules that survive context compaction
-
-1. **Grounding Invariant.** Every number, date, and quotation on a wiki page must
-   appear verbatim in the raw files listed in its `Raw:` header field. Locate
-   before write. A page without a `Raw:` field (except archive pages) is an error.
-2. **Triage before compile.** Every ingest is judged New / Update / Disputed /
-   No material. No material → log entry only, never a forced page.
-3. **Status blocks.** Superseded claims get `Status: Outdated` (date + what changed)
-   or `Status: Disputed` (competing claims). Never delete history.
-4. **Index + log on every write.** No exceptions. Log entry format is in
-   skills/wiki-manager/references/templates.md.
-5. **Never edit raw/.** Never write skills into wiki/. Skills belong to the
-   runtime's skills directory.
-6. **The loop is proposal-first.** Auto-skillifying and archiving require explicit
-   human approval before any write.
+1. **Grounding Invariant.** Every number, date, quotation must appear verbatim in `Raw:` files.
+2. **Universal Fingerprint.** Code-bound pages declare `Fingerprint: git:<hash>` & `Monitored: <paths>`. On drift, inspect diff only, update page, and bump hash.
+3. **Triage before compile.** Every ingest = New / Update / Disputed / No material (log only).
+4. **Status blocks.** Superseded claims get `Status: Outdated` or `Status: Disputed`. Never delete history.
+5. **Index + log on every write.** No exceptions (templates in skills/wiki-manager/references/templates.md).
+6. **Never edit raw/.** Never write skills into wiki/ (skills live in runtime skills dir).
+7. **Proposal-first loop.** Auto-skillifying & archiving require human approval before write.
 
 ## Verification
-
-```
-python3 skills/wiki-manager/scripts/check_evidence.py .
-```
-
-Report-only. Zero evidence errors required; fidelity suspects are judged by a human.
-On Windows without python3, use `py`. After any wiki write, update index.md and
-log.md in the same change.
+`python3 skills/wiki-manager/scripts/check_evidence.py .` (Windows: `py`). Zero errors required.
 
 ## Domain notes (this vault)
-
-- Wiki pages document the LLM-wiki ecosystem and this project's design decisions.
-  External sources are ingested to raw/notes/ first, then compiled.
-- Keep wiki pages grounded in raw — SPEC.md itself is normative and is not raw
-  evidence for ecosystem claims.
+- Documents LLM-wiki ecosystem & design decisions. Sources ingested to raw/notes/ first.
+- Keep pages grounded in raw. SPEC.md is normative, not raw evidence for ecosystem claims.
 - English throughout (OSS project).
+

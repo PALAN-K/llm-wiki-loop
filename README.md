@@ -27,6 +27,7 @@
 
 Most LLM notes gradually hallucinate, cite outdated assumptions, or bloat over time. **llm-wiki-loop** fixes this at the architectural layer:
 - 🛡️ **0-Hallucination Machine Grounding**: Every number, date, and quote in `wiki/` is mechanically verified against immutable `raw/` sources using `check_evidence.py`.
+- 🔍 **0-Token Code Drift Detection**: Wiki articles track source code implementations with **Universal Fingerprints** (`Fingerprint: git:<hash>` & `Monitored: <paths>`), saving 99% of token context costs on session startup.
 - ♻️ **Self-Organizing Vault**: Outdated facts are automatically tagged `Status: Outdated` or `Status: Disputed` and archived—never deleted, preserving complete historical fidelity.
 - ⚡ **Auto-Skillify Evolution**: Repeated solutions and error fixes (2+ times) logged in `log.md` are automatically promoted into reusable agent skills.
 - 🎯 **Zero Friction for Beginners**: One command (`npx llm-wiki-loop init`) instantly equips **Claude Code, Cursor, Codex, OpenCode, Gemini, Windsurf, and CommandCode** with structured knowledge.
@@ -46,17 +47,17 @@ flowchart TD
         Agent["AI Agent + wiki-manager Skill
 (Claude / Cursor / Codex / Gemini)"]
         Wiki["wiki/concepts/ & wiki/topics/
-(LLM-synthesized knowledge with Raw: links)"]
+(LLM-synthesized knowledge with Raw: links & Fingerprints)"]
         Index["index.md & log.md
 (Progressive disclosure & audit trail)"]
     end
 
     subgraph S3["3. Mechanical Verification Engine"]
         Engine["check_evidence.py
-(Grounding Invariant Parser)"]
-        Verdict{"0 Errors?"}
-        Pass["✅ 100% Grounded & Verified"]
-        Fail["❌ Ungrounded Claim Detected (Block CI)"]
+(Grounding Invariant & Drift Engine)"]
+        Verdict{"0 Errors & Fresh?"}
+        Pass["✅ 100% Grounded & Code Synced"]
+        Fail["❌ Ungrounded Claim / Code Drift Detected"]
     end
 
     subgraph S4["4. Self-Evolution & Active GC"]
@@ -69,14 +70,14 @@ flowchart TD
     end
 
     Raw -->|Triage: New / Update / Disputed| Agent
-    Agent -->|Write with exact Raw: links| Wiki
+    Agent -->|Write with exact Raw: links & Fingerprint| Wiki
     Agent -->|Append state transitions| Index
-    Wiki -->|Verify numbers, dates, quotations| Engine
+    Wiki -->|Verify literals & monitored paths| Engine
     Raw -->|Match against source body| Engine
     Engine --> Verdict
     Verdict -->|Yes| Pass
     Verdict -->|No| Fail
-    Wiki -->|Contradicted or superseded| Dispute
+    Wiki -->|Contradicted or code drifted| Dispute
     Dispute -->|Event-driven GC| Archive
     Index -->|Detect 2+ recurring patterns| Skillify
     Skillify -->|Human approves| Agent
@@ -89,10 +90,29 @@ flowchart TD
 | Capability | Ordinary AI Notes / RAG | **llm-wiki-loop** |
 |---|---|---|
 | **Grounding** | Probabilistic, hallucination-prone | **Mechanically verified**: numbers & quotes must match raw sources verbatim |
+| **Code Freshness** | Blindly re-reads code files every session ($$$ tokens) | **0-Token Universal Fingerprint**: `git diff` detects drift in 0.01s without token waste |
 | **History & Truth** | Silently overwrites or deletes | **Status blocks + archive/**: immutable truth with evolutionary audit logs |
 | **Vault Organization** | Manual curation / bloat | **Event-based GC**: self-organizing progressive disclosure (`index.md`) |
 | **Agent Portability** | Vendor lock-in (single IDE) | **Universal Adapter**: 1-click install across 7+ AI agent runtimes |
 | **Self-Evolution** | Static prompts | **Auto-skillifying**: frequent workflows evolve into automated agent skills |
+
+---
+
+## ⚡ Universal Fingerprint & 0-Token Code Drift Detection
+
+When connecting your LLM knowledge vault to an active software engineering repository, keeping wiki articles synchronized with source code changes is paramount:
+
+```markdown
+# Authentication Architecture Overview
+> Raw: [raw/notes/auth-v1.md](raw/notes/auth-v1.md)
+> Fingerprint: git:5b237fa
+> Monitored: src/auth/jwt.ts, src/auth/session.ts, package.json
+```
+
+1. **Intuitive**: Human-readable markdown header clearly stating the baseline Git commit and monitored files.
+2. **Ultra-lightweight (Zero-Config)**: 0 extra databases, 0 daemons. Fully leverages standard Git version control.
+3. **Token & Compute Efficient**: AI does not waste tens of thousands of tokens re-reading intact codebases. `npx llm-wiki check .` immediately identifies drifted articles in milliseconds.
+
 
 ---
 

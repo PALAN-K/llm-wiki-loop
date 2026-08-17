@@ -44,7 +44,9 @@ project root.
 
 from __future__ import annotations
 
+import hashlib
 import re
+import subprocess
 import sys
 from dataclasses import dataclass
 from pathlib import Path
@@ -56,11 +58,15 @@ NUMBER_TOKEN_RE = re.compile(
 SUFFIX_RE = re.compile(r"[KMB%]$")
 DATE_RE = re.compile(r"\d{4}-\d{2}(?:-\d{2})?")
 QUOTE_RES = [re.compile(r'"([^"\n]*)"'), re.compile(r"\u201c([^\u201d\n]*)\u201d")]
-METADATA_RE = re.compile(r"^>\s*(Sources?|Raw|Collected|Published|Updated|Archived|Triggers):")
+METADATA_RE = re.compile(
+    r"^>\s*(Sources?|Raw|Collected|Published|Updated|Archived|Triggers|Fingerprint|Monitored):"
+)
 STATUS_LINE_RE = re.compile(r"^>\s*\*\*Status:")
 LINK_RE = re.compile(r"\[([^\]]*)\]\(([^)]*)\)")
 INLINE_CODE_RE = re.compile(r"`[^`\n]*`")
 RAW_LINK_RE = re.compile(r"\(([^)]+\.md)[^)]*\)")
+FINGERPRINT_RE = re.compile(r"^>\s*Fingerprint:\s*(\S+)", re.IGNORECASE)
+MONITORED_RE = re.compile(r"^>\s*Monitored:\s*(.+)$", re.IGNORECASE)
 NO_MATERIAL_HEADING_RE = re.compile(
     r"^## \[[^\]]*\]\s*ingest\s*\|\s*no material:\s*(\S+)", re.IGNORECASE
 )
@@ -378,6 +384,102 @@ def unreferenced_raws(root: Path) -> list[str]:
     return missing
 
 
+def parse_fingerprint_info(article_text: str) -> tuple[str | None, list[str]]:
+    """Extract (Fingerprint, [Monitored paths]) from metadata header."""
+    fingerprint = None
+    monitored = []
+    for line in parse_document(article_text).header:
+        f_match = FINGERPRINT_RE.match(line.strip())
+        if f_match:
+            fingerprint = f_match.group(1).strip()
+        m_match = MONITORED_RE.match(line.strip())
+        if m_match:
+            raw_paths = m_match.group(1).strip()
+            paths = [p.strip().strip("`\"'") for p in re.split(r"[,;]", raw_paths) if p.strip()]
+            monitored.extend(paths)
+    return fingerprint, monitored
+
+
+def check_code_drift(article: Path, root: Path, fingerprint: str, monitored_paths: list[str]) -> list[str]:
+    """Check if any monitored files have drifted since fingerprint.
+    
+    Returns list of drift warning messages (empty if fresh).
+    """
+    if not fingerprint or not monitored_paths:
+        return []
+
+    drift_messages = []
+
+    if fingerprint.startswith("git:"):
+        commit_hash = fingerprint[4:].strip()
+        if not commit_hash:
+            return ["empty git commit hash in Fingerprint"]
+
+        try:
+            res = subprocess.run(
+                ["git", "rev-parse", "--is-inside-work-tree"],
+                cwd=root,
+                capture_output=True,
+                text=True,
+                timeout=5,
+            )
+            if res.returncode != 0:
+                return []
+        except Exception:
+            return []
+
+        try:
+            diff_cmd = ["git", "diff", "--name-only", commit_hash, "--"] + monitored_paths
+            diff_res = subprocess.run(
+                diff_cmd,
+                cwd=root,
+                capture_output=True,
+                text=True,
+                timeout=10,
+            )
+            if diff_res.returncode != 0:
+                err_text = diff_res.stderr.strip()
+                if "unknown revision" in err_text.lower() or "bad revision" in err_text.lower():
+                    return [f"invalid or unknown git commit hash: {commit_hash}"]
+                return [f"git diff failed: {err_text}"]
+
+            changed_files = [line.strip() for line in diff_res.stdout.splitlines() if line.strip()]
+            for f in changed_files:
+                drift_messages.append(f"{f} modified since {fingerprint}")
+        except Exception as e:
+            drift_messages.append(f"drift check failed: {e}")
+
+    elif fingerprint.startswith("sha256:"):
+        expected_hash = fingerprint[7:].strip().lower()
+        for rel_path in monitored_paths:
+            target = (root / rel_path).resolve()
+            if not target.is_file():
+                drift_messages.append(f"monitored file not found: {rel_path}")
+                continue
+            try:
+                hasher = hashlib.sha256()
+                with open(target, "rb") as f:
+                    while chunk := f.read(65536):
+                        hasher.update(chunk)
+                current_hash = hasher.hexdigest().lower()
+                if current_hash != expected_hash:
+                    drift_messages.append(
+                        f"{rel_path} SHA-256 changed (current: {current_hash[:8]}... vs expected: {expected_hash[:8]}...)"
+                    )
+            except Exception as e:
+                drift_messages.append(f"failed to read {rel_path}: {e}")
+
+    return drift_messages
+
+
+def check_drift_for_article(article: Path, root: Path) -> list[str]:
+    text = article.read_text(encoding="utf-8-sig")
+    fp, monitored = parse_fingerprint_info(text)
+    if fp and monitored:
+        return check_code_drift(article, root, fp, monitored)
+    return []
+
+
 def find_project_root(start: Path) -> Path:
     """Nearest ancestor of start containing wiki/ and raw/; else start."""
     for candidate in [start] + list(start.parents):
@@ -412,8 +514,17 @@ def main(argv: list[str]) -> int:
         articles = list(iter_articles(wiki_dir))
 
     results = {}
+    drift_results = {}
+    total_fingerprinted = 0
     for article in articles:
         results[article] = check_article(article, root)
+        text = article.read_text(encoding="utf-8-sig")
+        fp, _ = parse_fingerprint_info(text)
+        if fp:
+            total_fingerprinted += 1
+            drifts = check_drift_for_article(article, root)
+            if drifts:
+                drift_results[article] = drifts
 
     def label(article: Path) -> Path:
         try:
@@ -451,12 +562,27 @@ def main(argv: list[str]) -> int:
     if not orphans:
         print("(none)")
 
+    print("\n## Code freshness (Drift detection)")
+    drift_count = 0
+    if drift_results:
+        for article, drifts in drift_results.items():
+            print(f"\n{label(article)}")
+            for drift in drifts:
+                print(f"- ⚠ {drift}")
+                drift_count += 1
+    elif total_fingerprinted > 0:
+        print(f"(all {total_fingerprinted} fingerprinted article(s) are fresh)")
+    else:
+        print("(none)")
+
     print(
         f"\n## Summary\n{suspect_count} fidelity suspect(s), "
-        f"{error_count} evidence error(s), {len(orphans)} unreferenced raw file(s)"
+        f"{error_count} evidence error(s), {len(orphans)} unreferenced raw file(s), "
+        f"{drift_count} drifted article(s)"
     )
     return 0
 
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))
+

@@ -17,4 +17,9 @@
 - Disposition: New
 - Raw: raw/notes/2026-08-16-cli-architecture-and-cicd-matrix.md
 - Updated: (none — seed compile)
+## [2026-08-17] update | Universal Fingerprint and 0-Token Drift Detection (v1.1.0)
+- Spec: SPEC.md Section 4.5 & AGENTS.md rule 2 added
+- Engine: check_evidence.py Sweep 4 (Code Freshness / Drift Detection) added
+- Tests: 13 unit tests passing across fidelity, evidence, git drift, and SHA-256 hash
+
 

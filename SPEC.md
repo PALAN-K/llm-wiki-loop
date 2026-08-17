@@ -99,9 +99,21 @@ immutable `raw/` files. The rules:
    A claim whose only support is another page is a draft, not knowledge.
 4. **Derived values.** Computed values (sums, deltas) must state their components so
    each component is traceable to raw.
+5. **Universal Fingerprint (Code Grounding & Drift Invariant).** Wiki pages that summarize
+   or depend on codebase implementations declare optional `Fingerprint:` and `Monitored:`
+   header fields:
+   ```markdown
+   > Fingerprint: git:<commit-hash>
+   > Monitored: src/App.tsx, package.json
+   ```
+   - **0-Token Drift Detection:** The verification engine evaluates `git diff --name-only <hash> HEAD -- <paths>`.
+     Any detected changes mark the page as drifted (`Status: Outdated` trigger), eliminating
+     the need for LLMs to re-read hundreds of source files across sessions.
+   - **Non-git environments:** Support `Fingerprint: sha256:<hash>` for tracking individual files without Git.
 
 Enforcement is mechanical: `check_evidence.py` extracts candidate literals (numbers,
-ISO dates, quotes) from every page and verifies each against the page's raw sources.
+ISO dates, quotes) from every page and verifies each against the page's raw sources,
+as well as verifying code freshness for fingerprinted articles.
 
 ## 5. The lifecycle loop
 

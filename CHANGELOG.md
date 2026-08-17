@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.1.0] - 2026-08-17
+
+### ⚡ Universal Fingerprint & 0-Token Code Drift Detection
+
+#### Added
+- **Universal Fingerprint Header Support (`SPEC.md`, `AGENTS.md`)**:
+  - `Fingerprint: git:<commit-hash>` and `Monitored: <paths>` optional metadata fields for code-bound wiki articles.
+  - `Fingerprint: sha256:<hash>` for tracking individual files in non-git environments.
+- **Mechanical Code Freshness Sweep in `check_evidence.py`**:
+  - Automatically evaluates Git repository diffs (`git diff --name-only <hash> -- <paths>`) in sub-second execution without consuming LLM context tokens.
+  - Generates clear drift reports alerting stale articles for synchronization or `Status: Outdated` tagging.
+- **Unit & Integration Test Suite**:
+  - Added test cases covering fingerprint parsing, working tree drift, committed drift, and SHA-256 hash drift detection.
+
+---
+
 ## [1.0.0] - 2026-08-16
 
 ### 🚀 Official Production Release

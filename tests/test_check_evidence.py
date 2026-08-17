@@ -81,6 +81,105 @@ class TestCheckEvidence(unittest.TestCase):
             self.assertEqual(misses, [])
             self.assertEqual(errors, [])
 
+    def test_parse_fingerprint_info(self):
+        text = (
+            "# App Overview\n"
+            "> Raw: [Note](raw/notes/test.md)\n"
+            "> Fingerprint: git:5b237fa\n"
+            "> Monitored: src/App.tsx, package.json\n"
+            "\n"
+            "Overview body.\n"
+        )
+        fp, monitored = check_evidence.parse_fingerprint_info(text)
+        self.assertEqual(fp, "git:5b237fa")
+        self.assertEqual(monitored, ["src/App.tsx", "package.json"])
+
+    def test_check_code_drift_sha256(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            src_file = root / "src" / "index.js"
+            src_file.parent.mkdir(parents=True)
+            content_bytes = b"console.log('hello');\n"
+            src_file.write_bytes(content_bytes)
+
+            import hashlib
+            hasher = hashlib.sha256()
+            hasher.update(content_bytes)
+            correct_hash = f"sha256:{hasher.hexdigest()}"
+
+            wiki_file = root / "wiki" / "topics" / "overview.md"
+            wiki_file.parent.mkdir(parents=True)
+
+            # 1. Fresh case
+            drifts = check_evidence.check_code_drift(
+                wiki_file, root, correct_hash, ["src/index.js"]
+            )
+            self.assertEqual(drifts, [])
+
+            # 2. Drift case (file modified)
+            drifts_drifted = check_evidence.check_code_drift(
+                wiki_file, root, "sha256:0000000000000000000000000000000000000000000000000000000000000000", ["src/index.js"]
+            )
+            self.assertEqual(len(drifts_drifted), 1)
+            self.assertIn("SHA-256 changed", drifts_drifted[0])
+
+    def test_check_code_drift_git(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            import subprocess
+            try:
+                subprocess.run(["git", "init"], cwd=root, capture_output=True, check=True)
+                subprocess.run(["git", "config", "user.name", "Test"], cwd=root, capture_output=True, check=True)
+                subprocess.run(["git", "config", "user.email", "test@example.com"], cwd=root, capture_output=True, check=True)
+            except Exception:
+                # If git is not installed in environment, skip gracefully
+                return
+
+            src_file = root / "src" / "App.tsx"
+            src_file.parent.mkdir(parents=True)
+            src_file.write_text("export const App = () => <div>V1</div>;\n", encoding="utf-8")
+
+            subprocess.run(["git", "add", "."], cwd=root, capture_output=True, check=True)
+            subprocess.run(["git", "commit", "-m", "Initial commit"], cwd=root, capture_output=True, check=True)
+
+            rev_res = subprocess.run(["git", "rev-parse", "HEAD"], cwd=root, capture_output=True, text=True, check=True)
+            commit_hash = rev_res.stdout.strip()
+
+            wiki_file = root / "wiki" / "topics" / "overview.md"
+            wiki_file.parent.mkdir(parents=True)
+
+            # 1. Fresh case
+            drifts = check_evidence.check_code_drift(
+                wiki_file, root, f"git:{commit_hash}", ["src/App.tsx"]
+            )
+            self.assertEqual(drifts, [])
+
+            # 2. Modify file (working tree drift) -> Drift case
+            src_file.write_text("export const App = () => <div>V2</div>;\n", encoding="utf-8")
+            drifts_modified = check_evidence.check_code_drift(
+                wiki_file, root, f"git:{commit_hash}", ["src/App.tsx"]
+            )
+            self.assertEqual(len(drifts_modified), 1)
+            self.assertIn("modified since", drifts_modified[0])
+
+            # 3. Commit new changes -> Still drifted from old commit_hash
+            subprocess.run(["git", "add", "."], cwd=root, capture_output=True, check=True)
+            subprocess.run(["git", "commit", "-m", "Bump to V2"], cwd=root, capture_output=True, check=True)
+            drifts_committed = check_evidence.check_code_drift(
+                wiki_file, root, f"git:{commit_hash}", ["src/App.tsx"]
+            )
+            self.assertEqual(len(drifts_committed), 1)
+
+            # 4. Bump fingerprint to new commit -> Fresh again
+            rev_res2 = subprocess.run(["git", "rev-parse", "HEAD"], cwd=root, capture_output=True, text=True, check=True)
+            commit_hash2 = rev_res2.stdout.strip()
+            drifts_bumped = check_evidence.check_code_drift(
+                wiki_file, root, f"git:{commit_hash2}", ["src/App.tsx"]
+            )
+            self.assertEqual(drifts_bumped, [])
+
 
 if __name__ == "__main__":
     unittest.main()
+
+

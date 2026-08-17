@@ -22,6 +22,8 @@ SHA-256 hash and origin.
 
 > Sources: {author/organization, YYYY-MM-DD; ...}
 > Raw: [{title}](../../raw/notes/{file}.md); [...]
+> Fingerprint: git:{commit-hash} {optional — for code-bound pages}
+> Monitored: {path1, path2... optional — monitored source files for 0-token drift detection}
 > Updated: {YYYY-MM-DD — last date knowledge content changed}
 > Triggers: {optional — search keywords, comma-separated, mirrored in index.md}
 
