@@ -1,4 +1,19 @@
 .obsidian/
 .sessions/
 __pycache__/
+*.pyc
 .DS_Store
+node_modules/
+*.log
+npm-debug.log*
+.env
+.env.*
+# Local temporary & internal scratch files
+scratch/
+tmp/
+*.tmp
+raw/notes/internal-*
+*.local.md
+
+
+

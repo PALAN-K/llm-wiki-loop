@@ -62,7 +62,7 @@ key phrases as blockquotes.}
 ## index.md (row format)
 
 ```markdown
-# Knowledge Base Index
+# Knowledge Vault Index
 
 ## concepts
 - [Page name](wiki/concepts/{a}.md) — {one-line summary} (Updated: YYYY-MM-DD)
@@ -75,7 +75,7 @@ key phrases as blockquotes.}
 ## log.md (entry format — append-only, parseable)
 
 ```markdown
-# Vault Log
+# Vault Audit Log
 
 ## [YYYY-MM-DD] init | Vault initialized (project, <name>)
 ## [YYYY-MM-DD] ingest | <primary page title>

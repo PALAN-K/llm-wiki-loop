@@ -1,4 +1,4 @@
-# Vault Log
+# Vault Audit Log
 
 ## [2026-08-14] init | Vault initialized (project, llm-wiki-loop)
 ## [2026-08-14] ingest | LLM Wiki Pattern
@@ -25,6 +25,15 @@
 - CLI: Integrated runInstall into runInit; default encapsulation in ./llm-wiki-loop; fallback to .agents/skills
 - Tests: Added tests/test_cli_e2e.py; 18 automated tests passing
 - Release: llm-wiki-loop@1.1.1 published to npm registry
+## [2026-08-18] update | Schema Consistency, .gitkeep Scaffolding, and NPM v1.1.2 Release
+- CLI: Added .gitkeep scaffolding during init; explicit system requirements and clean safety descriptions
+- SEO: Added docs/robots.txt, docs/sitemap.xml, and Search Console verification slot
+- Release: llm-wiki-loop@1.1.2 published via GitHub Actions release.yml
+
+
+
+
+
 
 
 

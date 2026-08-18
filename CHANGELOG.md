@@ -7,22 +7,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.1.2] - 2026-08-18
+
+### 🛡️ Scaffolding Reliability, Schema Consistency & SEO Indexing
+
+#### Added & Improved
+- **Automated Directory Skeleton Retention**:
+  - `init` now automatically creates `.gitkeep` files in `raw/notes`, `raw/data`, `raw/assets`, `wiki/concepts`, `wiki/topics`, `wiki/references`, and `archive/` ensuring empty folders are tracked across git clones.
+- **Unified Schema & Documentation Headers**:
+  - Standardized H1 headers to `# Knowledge Vault Index` (in `index.md`, CLI templates, references) and `# Vault Audit Log` (in `log.md`, CLI templates).
+- **Search Engine Discovery Assets**:
+  - Added `docs/robots.txt` and `docs/sitemap.xml` for crawler indexing.
+  - Added Google Search Console verification meta tag slot in `docs/index.html`.
+- **Enhanced CLI Usability & Diagnostics**:
+  - Explicitly documented system requirements (`Node.js >= 18.0.0`, `Python >= 3.9.0`) in CLI help and doctor.
+  - Added safety clarification on the `clean` command lifecycle.
+
+---
+
 ## [1.1.1] - 2026-08-17
 
 ### 🎯 1-Click Init & Subdirectory Encapsulation
 
-#### Added & Improved
-- **1-Click Agent Skill Injection during `init`**:
-  - `npx llm-wiki-loop init` now automatically installs the `wiki-manager` skill into detected agent runtimes (`.claude`, `.agents`, `.cursor`, `.gemini`, `.opencode`, etc.) alongside vault scaffolding.
-  - Defaults to `.agents/skills/wiki-manager` (Open Agent Skills standard) when no proprietary agent folders exist.
-  - Added `--no-install` / `--vault-only` flags for vault-only workflows.
-- **Default `./llm-wiki-loop` Subdirectory Encapsulation**:
-  - `init` without arguments now cleanly encapsulates the vault in `./llm-wiki-loop/` rather than polluting project roots.
-  - Added `init .` and `init --root` support for standalone vault-only repositories.
-- **Enhanced CLI Auto-Discovery**:
-  - `doctor`, `check`, and `clean` automatically detect `./llm-wiki-loop` subdirectories when no explicit path is provided.
+#### 5 Core Features & Improvements
+1. **1-Click Multi-Agent Skill Injection**:
+   - `npx llm-wiki-loop init` automatically installs the `wiki-manager` skill into all detected agent runtimes (`.claude`, `.agents`, `.cursor`, `.gemini`, `.opencode`, `.commandcode`, `.windsurf`) simultaneously with vault scaffolding.
+2. **Default `./llm-wiki-loop` Subdirectory Encapsulation**:
+   - `init` without arguments cleanly scaffolds the vault inside `./llm-wiki-loop/` rather than polluting existing project roots.
+   - Added `init .` and `init --root` support for dedicated standalone vault repositories.
+3. **Fail-Safe Open Standard Fallback (`.agents/skills`)**:
+   - When no proprietary agent folders exist, automatically falls back to `.agents/skills/wiki-manager` complying with the Open Agent Skills standard.
+4. **Smart CLI Auto-Discovery**:
+   - Commands (`doctor`, `check`, `clean`) automatically detect `./llm-wiki-loop` subdirectories when no explicit path argument is provided.
+5. **Flexible & Non-Destructive Scaffolding Flags**:
+   - Added `--no-install` and `--vault-only` flags for vault-only workflows without modifying agent skill folders.
+   - Enhanced `clean` lifecycle ensuring safety and non-destructive removal of scaffolded directories.
 - **CLI E2E Test Suite**:
-  - Added automated test suites validating 1-Click scaffolding, fallback skill creation, clean lifecycle, and directory resolution.
+  - Added automated test suites (`tests/test_cli_e2e.py`) validating 1-Click scaffolding, fallback skill creation, clean lifecycle, and directory resolution (18 tests passing).
 
 ---
 

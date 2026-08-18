@@ -12,6 +12,9 @@
   <meta property="og:description" content="Zero hallucinations. Self-organizing lifecycle. 1-click injection into Claude Code, Cursor, Codex, OpenCode, Gemini, and Windsurf.">
   <meta property="og:url" content="https://palan-k.github.io/llm-wiki-loop">
   
+  <!-- Google Search Console verification placeholder: replace content with your verification key -->
+  <!-- <meta name="google-site-verification" content="YOUR_GOOGLE_SEARCH_CONSOLE_KEY" /> -->
+  
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -27,7 +30,7 @@
     <div class="container nav">
       <a href="#" class="logo">
         <span>⚡ llm-wiki-loop</span>
-        <span class="logo-badge">v1.0.0</span>
+        <span class="logo-badge">v1.1.2</span>
       </a>
       <ul class="nav-links">
         <li><a href="#lifecycle" class="nav-link">Architecture</a></li>
@@ -75,7 +78,7 @@
               <span class="dot yellow"></span>
               <span class="dot green"></span>
             </div>
-            <div class="terminal-title">bash — npx llm-wiki init</div>
+            <div class="terminal-title">bash — npx llm-wiki-loop init</div>
             <button class="btn-copy-term" id="btn-copy-term" title="Copy command">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
@@ -91,11 +94,11 @@
               <span class="term-cursor" id="cursor"></span>
             </div>
             <div class="term-output" id="term-output" style="display: none;">
-              <p>Scaffolding LLM-wiki vault in: <span class="accent">./my-vault</span></p>
+              <p>Scaffolding LLM-wiki vault in: <span class="accent">./llm-wiki-loop</span></p>
               <p>Created: <span class="success">raw/notes/</span>, <span class="success">wiki/topics/</span>, <span class="success">archive/</span></p>
               <p>Created: <span class="accent">index.md</span> & <span class="accent">log.md</span> (audit log)</p>
               <p>Auto-detected agents: <span class="success">Claude Code ✓</span>, <span class="success">Cursor ✓</span>, <span class="success">Gemini ✓</span></p>
-              <p class="success">✨ Vault scaffolded successfully! Run 'npx llm-wiki check .' to verify grounding.</p>
+              <p class="success">✨ Vault scaffolded successfully! Run 'npx llm-wiki-loop check' to verify grounding.</p>
             </div>
           </div>
         </div>
@@ -175,7 +178,7 @@ Latency is 15.0ms at 1,000 req scale.</div>
               <span class="card-badge">STAGE 3 : MACHINE LINTER</span>
               <h4>0-Hallucination Evidence Check</h4>
               <p>Strict mechanical matching checks candidate dates, grouped numbers, and quoted strings.</p>
-              <div class="code-preview">❯ npx llm-wiki check .
+              <div class="code-preview">❯ npx llm-wiki-loop check
 # Evidence check
 0 fidelity suspects, 0 evidence errors
 ✅ 100% Mechanically Grounded</div>
@@ -236,7 +239,7 @@ Pattern detected 2+ times in log.md
           <p>Initialize your first self-improving knowledge vault right now.</p>
         </div>
         <div style="display: inline-block; background: #0d1117; border: 1px solid var(--border-subtle); padding: 18px 32px; border-radius: var(--radius-md); font-family: var(--font-mono); font-size: 1.2rem; color: var(--accent-cyan); box-shadow: var(--shadow-glow);">
-          npx llm-wiki init
+          npx llm-wiki-loop init
         </div>
         <div style="margin-top: 28px;">
           <a href="https://github.com/PALAN-K/llm-wiki-loop" target="_blank" class="btn-primary">⭐ Star & Read Full Docs on GitHub</a>

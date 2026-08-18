@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const cmdElem = document.getElementById('typing-cmd');
   const outputElem = document.getElementById('term-output');
   const cursorElem = document.getElementById('cursor');
-  const commandText = 'npx llm-wiki init my-vault';
+  const commandText = 'npx llm-wiki-loop init';
   let charIdx = 0;
 
   function typeCommand() {
@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const copyText = document.getElementById('copy-text');
 
   copyBtn.addEventListener('click', () => {
-    navigator.clipboard.writeText('npx llm-wiki init').then(() => {
+    navigator.clipboard.writeText('npx llm-wiki-loop init').then(() => {
       copyText.textContent = 'Copied!';
       setTimeout(() => {
         copyText.textContent = 'Copy';

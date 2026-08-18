@@ -1,4 +1,4 @@
-# Knowledge Base Index
+# Knowledge Vault Index
 
 ## topics
 - [LLM Wiki Pattern](wiki/topics/llm-wiki-pattern.md) — Karpathy's persistent-wiki pattern: three layers, operations, index and log (Updated: 2026-08-14)

@@ -78,6 +78,10 @@ function printHelp() {
 llm-wiki-loop v${PKG.version}
 The reference architecture for LLM-maintained knowledge vaults.
 
+System Requirements:
+  Node.js >= 18.0.0
+  Python  >= 3.9.0 (required for mechanical grounding verification)
+
 Usage:
   llm-wiki <command> [options]
   npx llm-wiki-loop <command> [options]
@@ -88,7 +92,7 @@ Commands:
   check [vaultDir]    Run machine verification on grounding invariants
   doctor [vaultDir]   Diagnose local environment, Python runtime, and agent skills
   install [options]   Install wiki-manager skill into detected agent runtimes
-  clean [dir]         Clean/uninstall scaffolded vault files safely
+  clean [dir]         Clean/uninstall scaffolded vault files safely (removes ./llm-wiki-loop or vault folders; preserves non-vault project files)
   version, --version  Print version information
   help, --help        Show this help message
 
@@ -109,10 +113,10 @@ function runDoctor(targetDir) {
   // 1. Python Check
   const py = resolvePython();
   if (py) {
-    console.log(`[✓] Python Runtime: Detected (${py.cmd} -> ${py.version})`);
+    console.log(`[✓] Python Runtime: Detected (${py.cmd} -> ${py.version}) [Required: >= 3.9]`);
   } else {
     console.log(`[✗] Python Runtime: NOT found in PATH.`);
-    console.log(`    Evidence checks require Python 3.8+. Please install from https://python.org`);
+    console.log(`    Evidence checks require Python 3.9+ (3.9 - 3.12 recommended). Please install from https://python.org`);
   }
 
   // 2. Global Agent Runtimes
@@ -302,6 +306,10 @@ function runInit(rawArgs = []) {
     if (!fs.existsSync(full)) {
       fs.mkdirSync(full, { recursive: true });
       console.log(`[+] Created: ${d}/`);
+    }
+    const keepFile = path.join(full, '.gitkeep');
+    if (!fs.existsSync(keepFile)) {
+      fs.writeFileSync(keepFile, '', 'utf-8');
     }
   }
 
