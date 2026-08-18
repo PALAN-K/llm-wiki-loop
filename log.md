@@ -29,6 +29,11 @@
 - CLI: Added .gitkeep scaffolding during init; explicit system requirements and clean safety descriptions
 - SEO: Added docs/robots.txt, docs/sitemap.xml, and Search Console verification slot
 - Release: llm-wiki-loop@1.1.2 published via GitHub Actions release.yml
+## [2026-08-18] update | High-Impact Hero & NPM v1.1.3 Release
+- Docs: Added high-impact quickstart hero box and paradigm shift comparison table in README.md
+- Showcase: Synchronized terminal commands and quickstart copy handlers to npx llm-wiki-loop init
+- Release: llm-wiki-loop@1.1.3 published via GitHub Actions release.yml
+
 
 
 

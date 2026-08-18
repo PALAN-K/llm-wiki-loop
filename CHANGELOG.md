@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.1.3] - 2026-08-18
+
+### ⚡ High-Impact Quickstart & Showcase Alignment
+
+#### Added & Improved
+- **High-Impact README Hero Section**:
+  - Added 1-second quickstart TL;DR box.
+  - Added "Why Ordinary AI Notes Fail vs. llm-wiki-loop" paradigm shift comparison table.
+- **Showcase & Terminal Synchronization**:
+  - Aligned all interactive terminal simulator and copy commands across the web showcase to `npx llm-wiki-loop init`.
+
+---
+
 ## [1.1.2] - 2026-08-18
 
 ### 🛡️ Scaffolding Reliability, Schema Consistency & SEO Indexing
