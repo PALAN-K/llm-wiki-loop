@@ -33,6 +33,12 @@
 - Docs: Added high-impact quickstart hero box and paradigm shift comparison table in README.md
 - Showcase: Synchronized terminal commands and quickstart copy handlers to npx llm-wiki-loop init
 - Release: llm-wiki-loop@1.1.3 published via GitHub Actions release.yml
+## [2026-08-19] update | Root-Anchored Architecture, Non-Destructive Constitution Linking, and NPM v1.2.0 Release
+- CLI: Added linkRootConstitution and unlinkRootConstitution for non-destructive AGENTS.md anchor injection
+- Conventions: Standardized Vault Audit Ledger (log.md) definition and root-anchored naming across SPEC.md, SKILL.md, README.md, and docs/
+- Tests: Added E2E tests for constitution linking, idempotency, and clean unlinking (20/20 tests passing)
+- Release: llm-wiki-loop@1.2.0 published via GitHub Actions release.yml
+
 
 
 

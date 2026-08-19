@@ -32,8 +32,10 @@ Operates an LLM-maintained knowledge vault per the llm-wiki-loop architecture
 4. **Cascade + status**: new sources update every affected page. Superseded
    claims keep `Status: Outdated` / `Status: Disputed` blocks; history is
    never deleted.
-5. **Index + log on every write**: `index.md` (one line per page) and
-   `log.md` (parseable, append-only) are updated together, always.
+5. **Index + log on every write**: `index.md` (Knowledge Catalog) and
+   `log.md` (Vault Audit Ledger) are updated together, always.
+   *Distinction*: `log.md` is the global audit ledger for all vault transactions;
+   never substitute a topic's internal `## Changelog` for `log.md`.
 
 ## Operations
 

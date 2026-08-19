@@ -142,8 +142,9 @@ npx llm-wiki-loop init
 
 ### ⚡ What Happens in that 1 Second?
 1. 📂 **Capsules Knowledge Vault**: Scaffolds a complete 3-layer vault in `./llm-wiki-loop/` (`raw/`, `wiki/`, `archive/`, `index.md`, `log.md`, `AGENTS.md`) without polluting your project root.
-2. 🤖 **Equips All AI Agents**: Automatically detects and injects the `wiki-manager` skill into **Claude Code, Cursor, Codex, Gemini, OpenCode, Windsurf, and CommandCode** (or defaults to `.agents/skills/`).
-3. 🛡️ **Zero Token Waste & Zero Config**: Grounding invariants, 0-token git drift detection, and auto-skillification are active immediately.
+2. 🏛️ **Non-Destructive Constitution Linking**: Automatically links the vault protocol to your project's root `AGENTS.md` without overwriting existing project rules.
+3. 🤖 **Equips All AI Agents**: Automatically detects and injects the `wiki-manager` skill into **Claude Code, Cursor, Codex, Gemini, OpenCode, Windsurf, and CommandCode** (or defaults to `.agents/skills/`).
+4. 🛡️ **Zero Token Waste & Zero Config**: Grounding invariants, 0-token git drift detection, and auto-skillification are active immediately.
 
 ---
 
@@ -175,7 +176,7 @@ Commands:
   check [vaultDir]    🛡️ Run mechanical evidence verification (0-hallucination check)
   doctor [vaultDir]   🩺 Diagnose Python environment, detected AI agent runtimes & vault schema
   install [options]   🤖 Manually inject/update wiki-manager skill into agent runtimes
-  clean [dir]         🧹 Safely remove scaffolded vault files (rollback)
+  clean [dir]         🧹 Safely remove scaffolded vault files & unlinks constitution anchors
   version             🏷️ Print current package version
   help                ❓ Show help screen
 
@@ -198,14 +199,15 @@ llm-wiki-loop supports both **embedded mode** (inside existing apps) and **stand
 ### Mode 1: Embedded Vault (Recommended for Existing Projects)
 ```
 <your-project>/
+├── AGENTS.md                      # [LINKED] Project constitution (auto-linked with Vault Protocol)
 ├── .agents/skills/wiki-manager/   # [AGENT SKILL] Codex / Antigravity / Gemini runtime skill
 ├── .claude/skills/wiki-manager/   # [AGENT SKILL] Claude Code runtime skill
 ├── llm-wiki-loop/                 # [ISOLATED VAULT] Cleanly separated knowledge vault
 │   ├── raw/                       # [IMMUTABLE] Sources: notes/, data/, assets/ (Never edited by LLM)
 │   ├── wiki/                      # [LLM-OWNED] Compiled knowledge: concepts/, topics/, references/
 │   ├── archive/                   # [SUPERSEDED] Historical snapshots (never cascade-updated)
-│   ├── index.md                   # [MAP] Exactly 1 line per active wiki page (progressive disclosure)
-│   ├── log.md                     # [AUDIT] Append-only event log (## [YYYY-MM-DD] op | ...)
+│   ├── index.md                   # [CATALOG] Exactly 1 line per active wiki page (progressive disclosure)
+│   ├── log.md                     # [AUDIT LEDGER] Append-only event log (## [YYYY-MM-DD] op | ...)
 │   └── AGENTS.md                  # [CONSTITUTION] Vault rules & grounding invariants (< 50 lines)
 ├── src/                           # Your existing application code
 └── package.json

@@ -14,7 +14,7 @@ twice, in one session → propose creating a skill (one human approval).
 
 | Original | Ruling | Why |
 |---|---|---|
-| Store in `.wiki/skills/` | **Runtime skills directory** | Skill loaders scan only fixed directories (`~/.claude/skills/`, `.opencode/skills/`, `~/.agents/skills/`, …); a wiki-adjacent folder is a dead zone |
+| Store in vault (`llm-wiki-loop/skills/`) | **Runtime skills directory** | Skill loaders scan only fixed directories (`~/.claude/skills/`, `.opencode/skills/`, `~/.agents/skills/`, …); a vault-internal skill folder is a dead zone |
 | Mechanical detection (hooks) | **Model self-judgment + rule** | Runtimes differ in session hooks; automatic plugin detection costs more maintenance than it saves (no over-engineering) |
 
 **Procedure**:

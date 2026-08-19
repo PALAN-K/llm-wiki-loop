@@ -162,6 +162,44 @@ class TestCLIE2E(unittest.TestCase):
         self.assertIn("0 evidence error(s)", chk_res.stdout)
         self.assertIn("0 fidelity suspect(s)", chk_res.stdout)
 
+    def test_init_appends_anchor_to_existing_project_constitution(self):
+        """
+        When init runs in an existing project with AGENTS.md / CLAUDE.md:
+        1. Existing content is 100% preserved
+        2. Anchor block is appended at the end
+        3. Re-running init is idempotent (no duplicate blocks)
+        4. Running clean cleanly unlinks anchor and restores original content
+        """
+        # Pre-existing project constitution
+        existing_agents = self.sandbox / "AGENTS.md"
+        original_text = "# Existing Project Constitution\n\nRule 1: Always write clean TypeScript.\nRule 2: Run npm test before commit.\n"
+        existing_agents.write_text(original_text, encoding="utf-8")
+
+        # 1. Run init
+        init_res = self.run_cli(["init"])
+        self.assertEqual(init_res.returncode, 0)
+        self.assertIn("Linked Vault Protocol to existing AGENTS.md", init_res.stdout)
+
+        updated_text = existing_agents.read_text(encoding="utf-8")
+        self.assertTrue(updated_text.startswith(original_text.strip()))
+        self.assertIn("<!-- [llm-wiki-loop:anchor:start] -->", updated_text)
+        self.assertIn("Knowledge Vault: `llm-wiki-loop/`", updated_text)
+        self.assertIn("Audit Ledger: On any wiki change, append to `llm-wiki-loop/log.md`", updated_text)
+
+        # 2. Idempotency check: Re-running init should not duplicate the anchor
+        init_res_2 = self.run_cli(["init"])
+        self.assertEqual(init_res_2.returncode, 0)
+        updated_text_2 = existing_agents.read_text(encoding="utf-8")
+        self.assertEqual(updated_text_2.count("<!-- [llm-wiki-loop:anchor:start] -->"), 1)
+
+        # 3. Clean check: Unlinks anchor and restores original content
+        clean_res = self.run_cli(["clean"])
+        self.assertEqual(clean_res.returncode, 0)
+        self.assertIn("Unlinked Vault Protocol from AGENTS.md", clean_res.stdout)
+        restored_text = existing_agents.read_text(encoding="utf-8")
+        self.assertEqual(restored_text.strip(), original_text.strip())
+        self.assertFalse((self.sandbox / "llm-wiki-loop").exists())
+
 
 if __name__ == "__main__":
     unittest.main()

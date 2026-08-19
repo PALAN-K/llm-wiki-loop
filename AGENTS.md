@@ -22,3 +22,10 @@ raw/ (immutable) | wiki/ (LLM-owned) | archive/ (superseded) | index.md | log.md
 - Keep pages grounded in raw. SPEC.md is normative, not raw evidence for ecosystem claims.
 - English throughout (OSS project).
 
+
+<!-- [llm-wiki-loop:anchor:start] -->
+## 🏛️ LLM Wiki Protocol
+- Knowledge Vault: `C:/Users/jayeo/AppData/Local/Temp/tmpqtrlq5ef/new-vault/` (Catalog: `C:/Users/jayeo/AppData/Local/Temp/tmpqtrlq5ef/new-vault/index.md`)
+- Audit Ledger: On any wiki change, append to `C:/Users/jayeo/AppData/Local/Temp/tmpqtrlq5ef/new-vault/log.md`
+- Detailed Constitution: See `C:/Users/jayeo/AppData/Local/Temp/tmpqtrlq5ef/new-vault/AGENTS.md`
+<!-- [llm-wiki-loop:anchor:end] -->

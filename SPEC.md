@@ -69,21 +69,23 @@ never second copies, to avoid drift.
 
 Two special files keep the vault navigable and auditable:
 
-**`index.md`** — content-oriented. A catalog of every page: link, one-line summary,
+**`index.md` (Knowledge Catalog)** — content-oriented. A catalog of every page: link, one-line summary,
 updated date, optional trigger keywords. Organized by layer. The agent updates it on
 every write. Queries read the index first, then drill into pages. This is the
 progressive-disclosure engine: a session starts by reading *only* the index
 (one line per page) and loads pages on demand — no RAG infrastructure needed at
 moderate scale.
 
-**`log.md`** — chronological. Append-only record of every operation. Each entry starts
-with a parseable prefix, e.g. `## [2026-08-14] ingest | Article Title`, so
-`grep "^## \[" log.md | tail -5` returns recent history. The log is also the audit
-trail for machine verification (the linter is report-only; the log records its results)
-and the trigger surface for lifecycle GC.
+**`log.md` (Vault Audit Ledger)** — chronological. Append-only record of every operation.
+Each entry starts with a parseable prefix, e.g. `## [2026-08-14] ingest | Article Title`, so
+`grep "^## \[" log.md | tail -5` returns recent history.
+*Distinction*: `log.md` is the global audit ledger for the entire vault. It must **never** be
+confused with or replaced by a topic page's internal `## Changelog` section.
 
 **Invariant: every write updates index and log together.** A state transition that
-does not leave an index row and a log line has not happened.
+does not leave an index row and an audit log line has not happened. When embedded inside a
+parent project, files are consistently referenced by their canonical root-anchored prefix
+(e.g., `llm-wiki-loop/index.md` and `llm-wiki-loop/log.md`).
 
 ## 4. Grounding Invariant
 

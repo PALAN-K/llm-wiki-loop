@@ -61,15 +61,81 @@ function copySkill(destDir) {
   return dest;
 }
 
+const ANCHOR_START = '<!-- [llm-wiki-loop:anchor:start] -->';
+const ANCHOR_END = '<!-- [llm-wiki-loop:anchor:end] -->';
+
+function buildAnchorBlock(relVaultPath) {
+  const normPath = relVaultPath.replace(/\\/g, '/');
+  return `${ANCHOR_START}
+## 🏛️ LLM Wiki Protocol
+- Knowledge Vault: \`${normPath}/\` (Catalog: \`${normPath}/index.md\`)
+- Audit Ledger: On any wiki change, append to \`${normPath}/log.md\`
+- Detailed Constitution: See \`${normPath}/AGENTS.md\`
+${ANCHOR_END}`;
+}
+
 function findProjectRoot(start) {
+  for (const f of ['package.json', '.git', 'AGENTS.md']) {
+    if (fs.existsSync(path.join(start, f))) {
+      return start;
+    }
+  }
   let dir = start;
   while (true) {
     if (fs.existsSync(path.join(dir, 'package.json')) || fs.existsSync(path.join(dir, '.git'))) {
       return dir;
     }
     const parent = path.dirname(dir);
-    if (parent === dir) return null;
+    if (parent === dir) return start;
     dir = parent;
+  }
+}
+
+function linkRootConstitution(projectRoot, vaultDir) {
+  if (projectRoot === vaultDir) {
+    return; // Root mode doesn't need external anchor linking
+  }
+
+  const relVaultPath = path.relative(projectRoot, vaultDir).replace(/\\/g, '/');
+  const anchorBlock = buildAnchorBlock(relVaultPath);
+
+  // Strictly target canonical AGENTS.md
+  const filePath = path.join(projectRoot, 'AGENTS.md');
+  if (fs.existsSync(filePath)) {
+    const content = fs.readFileSync(filePath, 'utf-8');
+    if (!content.includes(ANCHOR_START)) {
+      const separator = content.endsWith('\n') ? '\n' : '\n\n';
+      fs.writeFileSync(filePath, content + separator + anchorBlock + '\n', 'utf-8');
+      console.log(`[+] Linked Vault Protocol to existing AGENTS.md`);
+    }
+  } else {
+    const content = `# Project AI Constitution\n\n${anchorBlock}\n`;
+    fs.writeFileSync(filePath, content, 'utf-8');
+    console.log(`[+] Created root AGENTS.md with Vault Protocol linkage`);
+  }
+}
+
+function escapeRegex(str) {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function unlinkRootConstitution(projectRoot) {
+  const filePath = path.join(projectRoot, 'AGENTS.md');
+  if (fs.existsSync(filePath)) {
+    let content = fs.readFileSync(filePath, 'utf-8');
+    if (content.includes(ANCHOR_START)) {
+      const startEsc = escapeRegex(ANCHOR_START);
+      const endEsc = escapeRegex(ANCHOR_END);
+      const regex = new RegExp(`\\r?\\n?${startEsc}[\\s\\S]*?${endEsc}\\r?\\n?`, 'g');
+      const updated = content.replace(regex, '').trim();
+      if (updated.length === 0) {
+        fs.rmSync(filePath, { force: true });
+        console.log(`[✓] Removed empty constitution file: AGENTS.md`);
+      } else {
+        fs.writeFileSync(filePath, updated + '\n', 'utf-8');
+        console.log(`[✓] Unlinked Vault Protocol from AGENTS.md`);
+      }
+    }
   }
 }
 
@@ -337,6 +403,10 @@ function runInit(rawArgs = []) {
     console.log(`[+] Created: AGENTS.md`);
   }
 
+  // Non-destructive project root constitution linking
+  const projectRoot = findProjectRoot(process.cwd()) || process.cwd();
+  linkRootConstitution(projectRoot, root);
+
   // 1-Click Auto-install Agent Skill
   let installedSkills = [];
   if (!skipInstall) {
@@ -374,7 +444,11 @@ function runClean(rawArgs = []) {
     root = process.cwd();
   }
 
+  const projectRoot = findProjectRoot(process.cwd()) || process.cwd();
   console.log(`Cleaning LLM-wiki vault files in: ${root}\n`);
+
+  // Unlink constitution anchors from project root
+  unlinkRootConstitution(projectRoot);
 
   // If cleaning the encapsulated subdirectory itself and it only has vault items
   if (path.basename(root) === 'llm-wiki-loop' && fs.existsSync(root)) {
@@ -389,7 +463,6 @@ function runClean(rawArgs = []) {
     'archive',
     'index.md',
     'log.md',
-    'agent.md',
     'AGENTS.md'
   ];
 

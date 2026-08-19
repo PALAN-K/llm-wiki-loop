@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.2.0] - 2026-08-19
+
+### 🏛️ Root-Anchored Architecture & Non-Destructive Constitution Linking
+
+#### Added & Improved
+- **Non-Destructive Project Constitution Linking**:
+  - `llm-wiki-loop init` automatically detects the project root `AGENTS.md` and appends a lightweight 4-line Vault Protocol anchor block without modifying or overwriting existing project rules.
+  - Ensures newly initialized AI sessions in embedded subproject vaults immediately recognize `llm-wiki-loop/` and enforce audit logging invariants.
+- **Idempotent Linking & Clean Teardown**:
+  - Re-running `init` will never duplicate the anchor block.
+  - `llm-wiki-loop clean` cleanly and safely unlinks the anchor block from project constitutions while preserving user rules.
+- **Canonical Terminology & Disambiguation**:
+  - Standardized `log.md` definition as **Vault Audit Ledger** across `SPEC.md`, `SKILL.md`, and documentation, eliminating confusion with topic internal changelogs.
+  - Standardized root-anchored naming conventions (`llm-wiki-loop/` prefix) for embedded vaults across all AI runtimes.
+- **Comprehensive E2E Test Suite**:
+  - Added test cases in `tests/test_cli_e2e.py` covering constitution linking, preservation of pre-existing rules, idempotency, and clean unlinking.
+
+---
+
 ## [1.1.3] - 2026-08-18
 
 ### ⚡ High-Impact Quickstart & Showcase Alignment
