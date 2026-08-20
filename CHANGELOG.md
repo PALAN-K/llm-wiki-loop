@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.3.0] - 2026-08-20
+
+### 🌏 i18n, a11y, and 8.5 Lite — Formal Release
+
+Bumps `7.9 → 8.5` lite path without breaking Karpathy's **ultra-lightweight** philosophy (`no DB, no daemon, plain markdown`).
+
+#### Added
+- **Internationalization (i18n) — ③**: `docs/ja/index.html` (Japanese) and `docs/ko/index.html` (Korean) showcase copies; `docs/sitemap.xml` now lists 3 locales with `hreflang en/ja/ko` and `lastmod 2026-08-20`; `scripts/sync-version.js` now syncs badge `v1.3.0` to all 3 locales and `sitemap` all `lastmod` entries (`g` flag).
+- **Accessibility (a11y) — ③**: `docs/index.html` wheel nav `role=tablist` + `wheel-step` `role=button tabindex=0 aria-selected` + `wheel-display` `aria-live=polite`; `docs/app.js` keyboard nav `Enter/Space/ArrowDown/Right/ArrowUp/Left` + `aria-selected`/`aria-hidden` sync + `focus-visible` ring `docs/style.css`.
+- **Scan Helper — ②-lite**: New `scripts/scan-skill-candidates.js` (0-overhead, report-only) scans `log.md` `^## [` for `ingest|update|fix|lint` patterns repeated `2+` times and proposes `SKILL.md` (human approval per `AGENTS.md:7`). Keeps `Model self-judgment + rule` per `self-improving-loop.md:18` without hooks. New `npm run scan:skills` (`package.json:37`).
+
+#### Philosophy Guard
+- ② was **not** implemented as hooks (would violate `no over-engineering`), but as 30-line lint report → preserves 1-second onboarding and zero-dep.
+- ① numeric boundary (`check_evidence.py:54`) intentionally **deferred** per keep policy — will be handled on real bug report to keep parser minimal.
+
+#### Technical
+- `package.json:3` `1.2.1 → 1.3.0` (minor, new i18n/a11y/scan features)
+- `pack` remains `~16 files 35.9kB` (docs not in npm `files`, `__pycache__` excluded) + Pages deploys `docs/` including `ja/`/`ko/`.
+
+---
+
 ## [1.2.1] - 2026-08-20
 
 ### 🛡️ Framework Integrity & Dogfooding Hardening (P0+P1)
