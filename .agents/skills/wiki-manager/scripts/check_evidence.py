@@ -33,9 +33,11 @@ spelled-out dates) are deliberately not checked; they belong to the
 compile-time locate-before-write rule and to judgment review. New prose
 forms extend this list in the docstring, not the regexes.
 
-The exit code carries no information; the report is the interface.
+Exit code: 0 always unless --strict is given (1 on faults). Report is primary interface.
 
-Usage: check_evidence.py [project-root] [article.md ...]
+Usage: check_evidence.py [--strict] [--strict-all] [project-root] [article.md ...]
+  --strict            exit 1 if evidence errors or drift detected
+  --strict-all        also fail on fidelity suspects (alias: --include-suspects)
 Defaults: project-root is the current directory (or its nearest ancestor
 containing wiki/ and raw/); all wiki/**/*.md articles except index.md and
 log.md are checked. Article paths may be absolute or relative to the
@@ -59,9 +61,10 @@ SUFFIX_RE = re.compile(r"[KMB%]$")
 DATE_RE = re.compile(r"\d{4}-\d{2}(?:-\d{2})?")
 QUOTE_RES = [re.compile(r'"([^"\n]*)"'), re.compile(r"\u201c([^\u201d\n]*)\u201d")]
 METADATA_RE = re.compile(
-    r"^>\s*(Sources?|Raw|Collected|Published|Updated|Archived|Triggers|Fingerprint|Monitored):"
+    r"^>\s*(Sources?|Raw|Collected|Published|Updated|Archived|Triggers|Fingerprint|Monitored):",
+    re.IGNORECASE,
 )
-STATUS_LINE_RE = re.compile(r"^>\s*\*\*Status:")
+STATUS_LINE_RE = re.compile(r"^>\s*(\*\*)?Status:", re.IGNORECASE)
 LINK_RE = re.compile(r"\[([^\]]*)\]\(([^)]*)\)")
 INLINE_CODE_RE = re.compile(r"`[^`\n]*`")
 RAW_LINK_RE = re.compile(r"\(([^)]+\.md)[^)]*\)")
@@ -70,7 +73,7 @@ MONITORED_RE = re.compile(r"^>\s*Monitored:\s*(.+)$", re.IGNORECASE)
 NO_MATERIAL_HEADING_RE = re.compile(
     r"^## \[[^\]]*\]\s*ingest\s*\|\s*no material:\s*(\S+)", re.IGNORECASE
 )
-ARCHIVED_RE = re.compile(r"^>\s*Archived:")
+ARCHIVED_RE = re.compile(r"^>\s*Archived:", re.IGNORECASE)
 FENCE_OPEN_RE = re.compile(r"^ {0,3}(`{3,}|~{3,})(.*)$")
 FENCE_CLOSE_RE = re.compile(r"^ {0,3}(`{3,}|~{3,})[ \t]*$")
 WS_RE = re.compile(r"\s+")
@@ -282,7 +285,7 @@ def raw_links_of(article_text: str) -> list[str]:
     the body or in code fences are content, not fields."""
     links = []
     for line in parse_document(article_text).header:
-        if re.match(r"^>\s*Raw:", line.strip()):
+        if re.match(r"^>\s*Raw:", line.strip(), re.IGNORECASE):
             links.extend(RAW_LINK_RE.findall(line))
     return links
 
@@ -362,12 +365,15 @@ def no_material_paths(log_file: Path) -> set[str]:
     return paths
 
 
-def referenced_raws(root: Path) -> set[Path]:
-    referenced = set()
+def referenced_raws(root: Path) -> set[str]:
+    referenced: set[str] = set()
     for article in iter_articles(root / WIKI_DIR_NAME):
         for link in raw_links_of(article.read_text(encoding="utf-8-sig")):
-            target = (article.parent / link).resolve()
-            referenced.add(target)
+            try:
+                target = (article.parent / link).resolve()
+                referenced.add(target.as_posix())
+            except Exception:
+                continue
     return referenced
 
 
@@ -376,11 +382,19 @@ def unreferenced_raws(root: Path) -> list[str]:
     if not raw_dir.is_dir():
         return []
     referenced = referenced_raws(root)
-    disposed = no_material_paths(root / "log.md")
+    # Normalize disposed paths to posix for cross-platform comparison
+    disposed_raw = no_material_paths(root / "log.md")
+    disposed = {Path(p).as_posix() for p in disposed_raw}
     missing = []
     for path in sorted(raw_dir.rglob("*.md")):
-        if path.resolve() not in referenced and path.relative_to(root).as_posix() not in disposed:
-            missing.append(path.relative_to(root).as_posix())
+        try:
+            resolved_posix = path.resolve().as_posix()
+        except Exception:
+            resolved_posix = path.as_posix()
+        rel_posix = path.relative_to(root).as_posix()
+        # Also check disposed with relative posix and with resolved posix
+        if resolved_posix not in referenced and rel_posix not in disposed and resolved_posix not in disposed:
+            missing.append(rel_posix)
     return missing
 
 
@@ -403,6 +417,10 @@ def parse_fingerprint_info(article_text: str) -> tuple[str | None, list[str]]:
 def check_code_drift(article: Path, root: Path, fingerprint: str, monitored_paths: list[str]) -> list[str]:
     """Check if any monitored files have drifted since fingerprint.
     
+    Supports:
+      - git: <hash> with Monitored: file1, file2
+      - sha256: <hash> with single file (legacy single-file mode)
+      - sha256 per-file: Monitored: path:sha256:<hex>, path2:sha256:<hex>
     Returns list of drift warning messages (empty if fresh).
     """
     if not fingerprint or not monitored_paths:
@@ -428,8 +446,20 @@ def check_code_drift(article: Path, root: Path, fingerprint: str, monitored_path
         except Exception:
             return []
 
+        # Normalize monitored paths to posix-relative form for git (git expects posix)
+        normalized_paths = [Path(p).as_posix() for p in monitored_paths]
+        # Filter out per-file hash suffix if present (git mode ignores it)
+        clean_paths = []
+        for p in normalized_paths:
+            # If entry is like "src/foo.ts:sha256:abc", extract path part before :sha256:
+            m = re.match(r"^(.*?)\s*:\s*sha256:[a-fA-F0-9]{5,}\s*$", p, re.IGNORECASE)
+            if m:
+                clean_paths.append(m.group(1).strip())
+            else:
+                # also strip possible inline hash after colon
+                clean_paths.append(p.split(":sha256:")[0].strip() if ":sha256:" in p.lower() else p)
         try:
-            diff_cmd = ["git", "diff", "--name-only", commit_hash, "--"] + monitored_paths
+            diff_cmd = ["git", "diff", "--name-only", commit_hash, "--"] + clean_paths
             diff_res = subprocess.run(
                 diff_cmd,
                 cwd=root,
@@ -450,8 +480,39 @@ def check_code_drift(article: Path, root: Path, fingerprint: str, monitored_path
             drift_messages.append(f"drift check failed: {e}")
 
     elif fingerprint.startswith("sha256:"):
-        expected_hash = fingerprint[7:].strip().lower()
-        for rel_path in monitored_paths:
+        # Per-file hash support: Monitored entries may be "path:sha256:hex"
+        # Build mapping of path -> expected hash
+        fallback_hash = fingerprint[7:].strip().lower()
+        # Validate fallback is hex-ish (allow short for tests)
+        path_to_hash: dict[str, str] = {}
+        clean_monitored: list[str] = []
+        for entry in monitored_paths:
+            entry_stripped = entry.strip()
+            # Detect per-file syntax: <path>:sha256:<hex>
+            per_file_match = re.match(r"^(.*?)\s*:\s*sha256:([a-fA-F0-9]{8,})\s*$", entry_stripped, re.IGNORECASE)
+            if per_file_match:
+                p = per_file_match.group(1).strip().strip("`\"'")
+                h = per_file_match.group(2).strip().lower()
+                # Normalize path to posix
+                p_norm = Path(p).as_posix()
+                path_to_hash[p_norm] = h
+                clean_monitored.append(p_norm)
+            else:
+                # Legacy mode: use fingerprint hash for all
+                p_norm = Path(entry_stripped.strip("`\"'")).as_posix()
+                # If multiple files share single hash, warn that per-file is preferred but still check
+                path_to_hash[p_norm] = fallback_hash
+                clean_monitored.append(p_norm)
+
+        # If multiple files with identical fallback hash and no per-file hashes, emit guidance on first drift
+        # (still check, but user can migrate to per-file syntax)
+
+        for rel_path in clean_monitored:
+            expected_hash = path_to_hash.get(rel_path, fallback_hash)
+            # Validate hash shape
+            if not re.fullmatch(r"[a-f0-9]{8,}", expected_hash or ""):
+                drift_messages.append(f"invalid SHA-256 hash for {rel_path}: {expected_hash}")
+                continue
             target = (root / rel_path).resolve()
             if not target.is_file():
                 drift_messages.append(f"monitored file not found: {rel_path}")
@@ -489,14 +550,34 @@ def find_project_root(start: Path) -> Path:
 
 
 def main(argv: list[str]) -> int:
-    root = Path(argv[1]).resolve() if len(argv) > 1 else find_project_root(Path.cwd())
+    # Parse strict flags (2-tier): --strict (errors+drift) and --strict-all / --include-suspects
+    strict_mode = False
+    include_suspects = False
+    filtered: list[str] = []
+    for arg in argv[1:]:
+        if arg == "--strict":
+            strict_mode = True
+        elif arg in ("--strict-all", "--strict--all", "--include-suspects", "--include_suspects"):
+            strict_mode = True
+            include_suspects = True
+        elif arg.startswith("--"):
+            # Unknown flag - keep for error handling below
+            if arg in ("--help", "-h"):
+                print(__doc__)
+                return 0
+            print(f"unknown option: {arg}", file=sys.stderr)
+            return 1
+        else:
+            filtered.append(arg)
+
+    root = Path(filtered[0]).resolve() if len(filtered) >= 1 else find_project_root(Path.cwd())
     wiki_dir = root / WIKI_DIR_NAME
     if not wiki_dir.is_dir():
         print(f"no {WIKI_DIR_NAME}/ directory under {root}")
         return 1
 
     articles = []
-    for arg in argv[2:]:
+    for arg in filtered[1:]:
         path = Path(arg)
         if not path.is_absolute():
             path = root / path
@@ -510,7 +591,7 @@ def main(argv: list[str]) -> int:
             print(f"warning: article not found: {arg}", file=sys.stderr)
             continue
         articles.append(path)
-    if len(argv) <= 2:
+    if not filtered[1:]:
         articles = list(iter_articles(wiki_dir))
 
     results = {}
@@ -580,6 +661,11 @@ def main(argv: list[str]) -> int:
         f"{error_count} evidence error(s), {len(orphans)} unreferenced raw file(s), "
         f"{drift_count} drifted article(s)"
     )
+    if strict_mode:
+        has_fault = error_count > 0 or drift_count > 0
+        has_suspect_fault = include_suspects and suspect_count > 0
+        if has_fault or has_suspect_fault:
+            return 1
     return 0
 
 

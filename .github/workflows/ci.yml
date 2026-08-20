@@ -18,11 +18,35 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: 'npm'
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
 
       - name: Syntax Linting
         run: |
           npm run lint
           node bin/cli.js --help
+          node bin/cli.js check --help || true
+
+      - name: Vault Integrity Guard
+        run: |
+          if grep -q "AppData/Local/Temp" AGENTS.md; then echo "::error::AGENTS.md contains ephemeral Temp path (anchor leak)" && exit 1; fi
+          if grep -q "tmp.*new-vault" AGENTS.md; then echo "::error::AGENTS.md contains tmp new-vault anchor leak" && exit 1; fi
+          echo "✓ AGENTS.md vault anchor clean"
+
+      - name: Version Sync Check
+        run: |
+          npm run sync:version
+          git diff --exit-code docs/ || (echo "::error::docs/ out of sync with package.json version - run npm run sync:version" && exit 1)
+
+      - name: Pack Dry Run
+        run: |
+          npm pack --dry-run
+          npm pack --dry-run 2>&1 | grep -q "__pycache__" && (echo "::error::__pycache__ leaked into tarball" && exit 1) || echo "✓ No __pycache__ in tarball"
 
   test-matrix:
     name: Test Matrix (${{ matrix.os }} - Node ${{ matrix.node-version }} - Py ${{ matrix.python-version }})
@@ -32,8 +56,8 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        node-version: ['18.x', '20.x']
-        python-version: ['3.9', '3.11', '3.12']
+        node-version: ['18.x', '20.x', '22.x']
+        python-version: ['3.9', '3.10', '3.11', '3.12']
 
     steps:
       - name: Checkout repository
@@ -43,17 +67,19 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
+          cache: 'npm'
 
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+          cache: 'pip'
 
       - name: Run Unit & E2E Lifecycle Tests (Python)
         run: |
-          python -m unittest discover -s tests
+          npm test
 
-      - name: CLI Doctor & Self-Vault Verification
+      - name: CLI Doctor & Self-Vault Verification (strict)
         run: |
           node bin/cli.js doctor
-          node bin/cli.js check .
+          node bin/cli.js check --strict .

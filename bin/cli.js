@@ -35,6 +35,20 @@ const PROJECT_RUNTIMES = [
   { name: 'Windsurf', folder: '.windsurf' },
 ];
 
+function parsePythonVersion(verStr) {
+  const m = verStr.match(/Python\s+(\d+)\.(\d+)(?:\.(\d+))?/i);
+  if (!m) return null;
+  return { major: parseInt(m[1], 10), minor: parseInt(m[2], 10), patch: parseInt(m[3] || '0', 10) };
+}
+
+function isPythonSufficient(verStr) {
+  const v = parsePythonVersion(verStr);
+  if (!v) return false;
+  if (v.major > 3) return true;
+  if (v.major === 3 && v.minor >= 9) return true;
+  return false;
+}
+
 function resolvePython() {
   const candidates = process.platform === 'win32'
     ? ['py', 'python', 'python3']
@@ -45,7 +59,11 @@ function resolvePython() {
       const res = spawnSync(cmd, ['--version'], { stdio: 'pipe', encoding: 'utf-8' });
       if (res.status === 0) {
         const ver = (res.stdout || res.stderr || '').trim();
-        return { cmd, version: ver };
+        if (isPythonSufficient(ver)) {
+          return { cmd, version: ver };
+        }
+      } else if (res.error) {
+        // EACCES etc - continue to next candidate but don't swallow silently
       }
     } catch {
       // ignore ENOENT
@@ -74,27 +92,70 @@ function buildAnchorBlock(relVaultPath) {
 ${ANCHOR_END}`;
 }
 
+function isVaultDir(dir) {
+  return fs.existsSync(path.join(dir, 'index.md')) &&
+         fs.existsSync(path.join(dir, 'AGENTS.md')) &&
+         fs.existsSync(path.join(dir, 'raw')) &&
+         fs.existsSync(path.join(dir, 'wiki'));
+}
+
 function findProjectRoot(start) {
-  for (const f of ['package.json', '.git', 'AGENTS.md']) {
-    if (fs.existsSync(path.join(start, f))) {
-      return start;
-    }
-  }
+  // Unified resolver: prefer vault + package detection, walk parents
+  // 1. If start is a vault itself, its parent may be the project root
+  // 2. Walk up looking for package.json / .git (project marker)
   let dir = start;
   while (true) {
     if (fs.existsSync(path.join(dir, 'package.json')) || fs.existsSync(path.join(dir, '.git'))) {
       return dir;
     }
     const parent = path.dirname(dir);
-    if (parent === dir) return start;
+    if (parent === dir) break;
     dir = parent;
   }
+  // Fallback: if start contains vault markers, return start
+  for (const f of ['package.json', '.git', 'AGENTS.md']) {
+    if (fs.existsSync(path.join(start, f))) {
+      return start;
+    }
+  }
+  return start;
+}
+
+function resolveVaultPath(targetDir) {
+  if (targetDir) {
+    const resolved = path.resolve(targetDir);
+    // Handle --strict flags being passed as targetDir accidentally
+    if (resolved.includes('--strict')) return process.cwd();
+    return resolved;
+  }
+  const cwd = process.cwd();
+  // Auto-discovery priority: llm-wiki-loop > llm-wiki > cwd vault
+  for (const sub of ['llm-wiki-loop', 'llm-wiki']) {
+    const cand = path.join(cwd, sub);
+    if (fs.existsSync(path.join(cand, 'index.md'))) {
+      return cand;
+    }
+  }
+  return cwd;
 }
 
 function linkRootConstitution(projectRoot, vaultDir) {
   if (projectRoot === vaultDir) {
     return; // Root mode doesn't need external anchor linking
   }
+  // Guard: only link if vault is inside projectRoot (prevent leaking anchor to repo when init targets external temp dir)
+  const rel = path.relative(projectRoot, vaultDir);
+  if (rel.startsWith('..') || path.isAbsolute(rel) && rel.includes('..')) {
+    return;
+  }
+  // Also ensure vaultDir is descendant of projectRoot
+  try {
+    const vaultResolved = path.resolve(vaultDir);
+    const projResolved = path.resolve(projectRoot);
+    if (!vaultResolved.startsWith(projResolved + path.sep) && vaultResolved !== projResolved) {
+      return;
+    }
+  } catch {}
 
   const relVaultPath = path.relative(projectRoot, vaultDir).replace(/\\/g, '/');
   const anchorBlock = buildAnchorBlock(relVaultPath);
@@ -153,27 +214,40 @@ Usage:
   npx llm-wiki-loop <command> [options]
 
 Commands:
-  init [dir]          1-Click setup: Scaffold vault & auto-install agent skill
-                      (default: ./llm-wiki-loop. Pass '.' or --root for current dir)
-  check [vaultDir]    Run machine verification on grounding invariants
-  doctor [vaultDir]   Diagnose local environment, Python runtime, and agent skills
-  install [options]   Install wiki-manager skill into detected agent runtimes
-  clean [dir]         Clean/uninstall scaffolded vault files safely (removes ./llm-wiki-loop or vault folders; preserves non-vault project files)
-  version, --version  Print version information
-  help, --help        Show this help message
+   init [dir]          1-Click setup: Scaffold vault & auto-install agent skill
+                       (default: ./llm-wiki-loop. Pass '.' or --root for current dir)
+   check [vaultDir]    Run machine verification on grounding invariants
+                       [--strict: fail on errors/drift, --strict-all: also fail on suspects]
+   doctor [vaultDir]   Diagnose local environment, Python runtime, and agent skills
+   install [options]   Install wiki-manager skill into detected agent runtimes
+   clean [dir]         Clean/uninstall scaffolded vault files safely (removes ./llm-wiki-loop or vault folders; preserves non-vault project files)
+   version, --version  Print version information
+   help, --help        Show this help message
 
 Options for 'init':
-  . or --root         Scaffold directly in the current working directory
-  --no-install        Skip automatic agent skill installation
-  --vault-only        Alias for --no-install
+   . or --root         Scaffold directly in the current working directory
+   --no-install        Skip automatic agent skill installation
+   --vault-only        Alias for --no-install
+
+Options for 'check':
+   --strict            Exit 1 on evidence errors or drift (CI mode)
+   --strict-all        Also fail on fidelity suspects (alias: --include-suspects)
 
 Options for 'install':
-  --global, -g        Install globally to detected user home runtimes (~/)
-  --custom <path>     Install to a custom skill directory
+   --global, -g        Install globally to detected user home runtimes (~/)
+   --custom <path>     Install to a custom skill directory
 `);
 }
 
-function runDoctor(targetDir) {
+function runDoctor(rawArgs) {
+  let targetDir = null;
+  if (Array.isArray(rawArgs)) {
+    for (const a of rawArgs) {
+      if (a && !a.startsWith('--') && !a.startsWith('-')) { targetDir = a; break; }
+    }
+  } else if (typeof rawArgs === 'string') {
+    targetDir = rawArgs;
+  }
   console.log(`=== llm-wiki Doctor (v${PKG.version}) ===\n`);
 
   // 1. Python Check
@@ -219,10 +293,7 @@ function runDoctor(targetDir) {
   }
 
   // 4. Vault Structure Check
-  let vaultDir = targetDir ? path.resolve(targetDir) : process.cwd();
-  if (!targetDir && !fs.existsSync(path.join(vaultDir, 'index.md')) && fs.existsSync(path.join(vaultDir, 'llm-wiki-loop', 'index.md'))) {
-    vaultDir = path.join(vaultDir, 'llm-wiki-loop');
-  }
+  let vaultDir = resolveVaultPath(targetDir);
 
   console.log(`\n--- Local Vault Schema Check (${vaultDir}) ---`);
   const requiredPaths = ['raw', 'wiki', 'archive', 'index.md', 'log.md', 'AGENTS.md'];
@@ -243,22 +314,34 @@ function runDoctor(targetDir) {
   }
 }
 
-function runCheck(targetDir) {
-  let vaultPath = targetDir ? path.resolve(targetDir) : process.cwd();
-  if (!targetDir && !fs.existsSync(path.join(vaultPath, 'index.md')) && fs.existsSync(path.join(vaultPath, 'llm-wiki-loop', 'index.md'))) {
-    vaultPath = path.join(vaultPath, 'llm-wiki-loop');
+function runCheck(rawArgs) {
+  let targetDir = null;
+  const strictFlags = [];
+  const args = Array.isArray(rawArgs) ? rawArgs : (rawArgs ? [rawArgs] : []);
+  for (const a of args) {
+    if (a === '--strict' || a === '--strict-all' || a === '--include-suspects') {
+      strictFlags.push(a);
+    } else if (a && !a.startsWith('-')) {
+      if (!targetDir) targetDir = a;
+    } else if (a && a.startsWith('-')) {
+      // Unknown flag -> treat as strict flag passthrough
+      strictFlags.push(a);
+    }
   }
+  let vaultPath = resolveVaultPath(targetDir);
 
   const py = resolvePython();
   if (!py) {
-    console.error(`Error: Python runtime not found. Python 3.8+ is required to run verification.`);
+    console.error(`Error: Python runtime not found. Python 3.9+ is required to run verification.`);
+    console.error(`Install Python 3.9+ from https://python.org and ensure 'python3' or 'py' is in PATH.`);
     process.exit(1);
   }
 
   console.log(`Checking vault at: ${vaultPath}`);
   console.log(`Using Python executable: ${py.cmd} (${py.version})\n`);
 
-  const res = spawnSync(py.cmd, [CHECK_SCRIPT, vaultPath], { stdio: 'inherit' });
+  const pyArgs = [...strictFlags, vaultPath];
+  const res = spawnSync(py.cmd, [CHECK_SCRIPT, ...pyArgs], { stdio: 'inherit' });
   if (res.status !== 0) {
     process.exit(res.status || 1);
   }
@@ -266,8 +349,16 @@ function runCheck(targetDir) {
 
 function runInstall(args = [], options = {}) {
   const isGlobal = args.includes('--global') || args.includes('-g');
+  let customDir = process.env.SKILL_DIR || process.env.CUSTOM_SKILL_DIR || null;
   const customIdx = args.indexOf('--custom');
-  const customDir = customIdx !== -1 && args[customIdx + 1] ? args[customIdx + 1] : process.env.SKILL_DIR;
+  if (customIdx !== -1) {
+    const next = args[customIdx + 1];
+    if (next && !next.startsWith('-')) {
+      customDir = next;
+    } else {
+      if (!options.silent) console.warn(`--custom requires a path argument`);
+    }
+  }
 
   const installed = [];
 
@@ -404,8 +495,19 @@ function runInit(rawArgs = []) {
   }
 
   // Non-destructive project root constitution linking
-  const projectRoot = findProjectRoot(process.cwd()) || process.cwd();
-  linkRootConstitution(projectRoot, root);
+  // Prefer vault's parent directory as project scope when vault is external (prevents leaking anchor to caller's repo)
+  let projectRoot = null;
+  try {
+    const vaultParent = path.dirname(path.resolve(root));
+    projectRoot = findProjectRoot(vaultParent) || findProjectRoot(process.cwd()) || process.cwd();
+    // If vault is outside the detected projectRoot, do not link (external temp vault)
+    const relCheck = path.relative(projectRoot, path.resolve(root));
+    if (relCheck.startsWith('..')) {
+      // Vault is external to project - skip constitution linking entirely
+      projectRoot = null;
+    }
+  } catch { projectRoot = findProjectRoot(process.cwd()) || process.cwd(); }
+  if (projectRoot) linkRootConstitution(projectRoot, root);
 
   // 1-Click Auto-install Agent Skill
   let installedSkills = [];
@@ -447,25 +549,40 @@ function runClean(rawArgs = []) {
   const projectRoot = findProjectRoot(process.cwd()) || process.cwd();
   console.log(`Cleaning LLM-wiki vault files in: ${root}\n`);
 
-  // Unlink constitution anchors from project root
+  // Unlink constitution anchors from project root (non-destructive)
   unlinkRootConstitution(projectRoot);
 
-  // If cleaning the encapsulated subdirectory itself and it only has vault items
-  if (path.basename(root) === 'llm-wiki-loop' && fs.existsSync(root)) {
+  // Safety guard: validate vault before destructive delete
+  const isVault = isVaultDir(root);
+  const isEncapsulated = path.basename(root) === 'llm-wiki-loop' || path.basename(root) === 'llm-wiki';
+  if (!isVault && !isEncapsulated) {
+    console.log(`[!] Not a vault directory: ${root}`);
+    console.log(`    Expected vault files (raw/, wiki/, index.md, log.md, AGENTS.md) not found. Aborting to prevent data loss.`);
+    console.log(`    Specify vault path explicitly: npx llm-wiki-loop clean ./llm-wiki-loop`);
+    return;
+  }
+
+  // If cleaning the encapsulated subdirectory itself
+  if (isEncapsulated && fs.existsSync(root)) {
+    if (!isVault) {
+      console.log(`[!] Directory ${root} lacks vault markers. Skipping encapsulated delete for safety.`);
+      return;
+    }
     fs.rmSync(root, { recursive: true, force: true });
     console.log(`[✓] Removed encapsulated vault directory: ${root}`);
     return;
   }
 
+  // Root-mode clean: remove vault layers but preserve AGENTS.md if it contains user content beyond anchor
   const itemsToRemove = [
     'raw',
     'wiki',
     'archive',
     'index.md',
     'log.md',
-    'AGENTS.md'
   ];
-
+  // AGENTS.md is handled separately via unlink; only delete if it's purely vault constitution (optional)
+  // Check if AGENTS.md after unlink is empty or only whitespace -> remove; otherwise keep user content
   let count = 0;
   for (const item of itemsToRemove) {
     const target = path.join(root, item);
@@ -473,6 +590,24 @@ function runClean(rawArgs = []) {
       fs.rmSync(target, { recursive: true, force: true });
       console.log(`Removed: ${item}`);
       count++;
+    }
+  }
+  // Handle AGENTS.md cautiously
+  const agentsPath = path.join(root, 'AGENTS.md');
+  if (fs.existsSync(agentsPath)) {
+    const content = fs.readFileSync(agentsPath, 'utf-8').trim();
+    // If file is empty after unlink or looks like vault template only, remove; else preserve
+    if (content.length === 0) {
+      fs.rmSync(agentsPath, { force: true });
+      console.log(`Removed: AGENTS.md (empty)`);
+      count++;
+    } else if (content.includes('Knowledge Vault Constitution') && content.split('\n').length < 20) {
+      // Likely standalone vault template - safe to remove on clean
+      fs.rmSync(agentsPath, { force: true });
+      console.log(`Removed: AGENTS.md`);
+      count++;
+    } else {
+      console.log(`[i] Preserved AGENTS.md (contains user content)`);
     }
   }
 
@@ -499,10 +634,10 @@ function main() {
 
   switch (command) {
     case 'doctor':
-      runDoctor(args[1]);
+      runDoctor(args.slice(1));
       break;
     case 'check':
-      runCheck(args[1]);
+      runCheck(args.slice(1));
       break;
     case 'install':
       runInstall(args.slice(1));

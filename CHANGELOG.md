@@ -7,6 +7,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.2.1] - 2026-08-20
+
+### 🛡️ Framework Integrity & Dogfooding Hardening (P0+P1)
+
+#### Fixed (Critical — Framework Product)
+- **SHA-256 Per-File Drift (A1)**: `check_evidence.py:452` now supports `Monitored: src/a.ts:sha256:<hex>, src/b.ts:sha256:<hex>` per-file mapping; legacy single-hash single-file mode preserved. Multi-file false drift eliminated.
+- **Exit Code Strictness (A/B)**: `check_evidence.py:583` always 0 → 2-tier `--strict` (error+drift → exit 1) and `--strict-all`/`--include-suspects` (also suspect). `bin/cli.js:307` forwards flags; `ci.yml`/`release.yml` now use `--strict` for true CI failure.
+- **AGENTS.md Ephemeral Anchor Leak (E1)**: Root vault `AGENTS.md:25` contained `C:/.../Temp/tmp*/new-vault` after `init` with external temp target. Added containment guard in `bin/cli.js:142` (`vault inside projectRoot` check) + `ci.yml:35` Vault Integrity Guard (`grep AppData/Local/Temp`).
+- **Metadata Case Sensitivity (A2)**: `METADATA_RE:61`/`STATUS_LINE_RE:64`/`ARCHIVED_RE:73` now `IGNORECASE`; `raw_links_of:285` case-insensitive; `> Status:` plain block correctly skipped, preventing false suspects.
+
+#### Improved (Stability — CLI & Distribution)
+- **Engine Consistency (B1/B7)**: `package.json:38` `>=16.17` → `>=18.0.0` to match `bin/cli.js:147` and `CONTRIBUTING.md:10`; `resolvePython:38` now parses `Python 3.x` and gates `>=3.9`; `package.json:34` `test: py -m unittest` → `node scripts/run-tests.js` cross-platform.
+- **Path Normalization (H2)**: `referenced_raws:365`/`unreferenced_raws:374`/`check_code_drift:412` all `as_posix()` unified; fixes Windows `\` vs Ubuntu `/` orphan/drift false positives.
+- **Clean Safety (B4)**: `bin/cli.js:506` now validates `isVaultDir` before `rmSync`, encapsulated `llm-wiki-loop` deletion requires vault markers; root-mode `AGENTS.md` preserved if user content remains.
+- **Install Hygiene (H3)**: `scripts/install.js:56` detects `__dirname inside node_modules` and skips project fallback skill creation; outer `try/catch` guarantees `postinstall` never fails install.
+- **Pack Hygiene (H2)**: `.npmignore` `**/__pycache__` + `scripts/sync-version.js:40` `cleanPycache` → `npm pack` no longer leaks `__pycache__/*.pyc` (was 16→15 files, 144kB→106kB).
+- **Version Single Source (H4)**: New `scripts/sync-version.js` (40 LOC) syncs `package.json:3` → `docs/index.html:33` badge + `docs/sitemap.xml:5` lastmod; wired to `sync:version`/`prepack`/`pretest` and `ci.yml:42` Version Sync Check.
+
+#### CI/CD
+- **ci.yml:10-44**: `cache: npm/pip`, Node matrix `+22.x`, Python matrix `+3.10`, `Version Sync Check`, `Vault Integrity Guard`, `Pack Dry Run __pycache__ guard`, `check --strict` in matrix.
+- **release.yml:4-46**: Strict tag glob `v[0-9]+.[0-9]+.[0-9]+`, `id-token: write` + provenance, `tag == package.json version` guard, `sync:version` before checks, `__pycache__` guard, `--strict` before publish, `if: success()` on release.
+
+#### Tests & Docs
+- **Tests**: 18 → 25 passing (`tests/test_check_evidence.py:193` added: `test_sha256_per_file`, `test_metadata_case_insensitive`, `test_status_block_plain`, `test_unreferenced_posix`, `test_strict_flags`).
+- **Showcase**: `docs/app.js:7` respects `prefers-reduced-motion`, clipboard `catch`+`execCommand` fallback + `aria-label`, auto-rotate `mouseleave` resume + throttle reset to avoid permanent stall.
+- **Keeps (deferred P2)**: ① numeric boundary fine-tuning ② full a11y ③ physical vault separation `examples/` — all Keep per review; no change, revisit on user report or landing redesign.
+
+---
+
 ## [1.2.0] - 2026-08-19
 
 ### 🏛️ Root-Anchored Architecture & Non-Destructive Constitution Linking

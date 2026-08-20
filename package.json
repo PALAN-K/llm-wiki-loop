@@ -1,6 +1,6 @@
 {
     "name": "llm-wiki-loop",
-    "version": "1.2.0",
+    "version": "1.2.1",
     "description": "The production framework for self-improving & self-organizing LLM knowledge vaults — grounding invariants, code drift detection, auto-skillification, and 1-click multi-agent setup.",
     "license":  "MIT",
     "keywords":  [
@@ -30,13 +30,15 @@
                   "LICENSE"
               ],
     "scripts":  {
-                    "lint":  "node --check bin/cli.js \u0026\u0026 node --check scripts/install.js",
-                    "test":  "py -m unittest discover -s tests",
+                    "lint":  "node --check bin/cli.js && node --check scripts/install.js && node --check scripts/sync-version.js && py -m py_compile skills/wiki-manager/scripts/check_evidence.py || python -m py_compile skills/wiki-manager/scripts/check_evidence.py || python3 -m py_compile skills/wiki-manager/scripts/check_evidence.py",
+                    "test":  "node scripts/run-tests.js",
                     "test:cli":  "node bin/cli.js doctor",
+                    "sync:version":  "node scripts/sync-version.js",
+                    "prepack":  "npm run sync:version --silent",
                     "postinstall":  "node scripts/install.js"
                 },
     "engines":  {
-                    "node":  "\u003e=16.17"
+                    "node":  "\u003e=18.0.0"
                 },
     "homepage":  "https://github.com/PALAN-K/llm-wiki-loop#readme",
     "repository":  {

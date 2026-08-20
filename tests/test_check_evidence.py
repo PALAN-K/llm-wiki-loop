@@ -180,6 +180,104 @@ class TestCheckEvidence(unittest.TestCase):
             )
             self.assertEqual(drifts_bumped, [])
 
+    def test_sha256_per_file(self):
+        """Q1 A: Monitored per-file hash syntax src/a:sha256:hex"""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            import hashlib
+            # Create two files with distinct contents
+            f1 = root / "src" / "a.ts"
+            f1.parent.mkdir(parents=True)
+            c1 = b"content-a"
+            f1.write_bytes(c1)
+            h1 = hashlib.sha256(c1).hexdigest()
+
+            f2 = root / "src" / "b.ts"
+            f2.write_bytes(b"content-b")
+            h2 = hashlib.sha256(b"content-b").hexdigest()
+
+            wiki_file = root / "wiki" / "topics" / "overview.md"
+            wiki_file.parent.mkdir(parents=True)
+
+            # Fresh: per-file hashes match
+            drifts = check_evidence.check_code_drift(
+                wiki_file, root, f"sha256:{h1}",
+                [f"src/a.ts:sha256:{h1}", f"src/b.ts:sha256:{h2}"]
+            )
+            self.assertEqual(drifts, [])
+
+            # Drift: second file hash mismatch
+            drifts2 = check_evidence.check_code_drift(
+                wiki_file, root, f"sha256:{h1}",
+                [f"src/a.ts:sha256:{h1}", f"src/b.ts:sha256:{'0'*64}"]
+            )
+            self.assertEqual(len(drifts2), 1)
+            self.assertIn("b.ts", drifts2[0])
+
+    def test_metadata_case_insensitive(self):
+        text = "# T\n> raw: [Note](raw/notes/x.md)\n\nBody with 2026-08-14.\n"
+        # Should parse raw link even with lowercase 'raw:'
+        links = check_evidence.raw_links_of(text)
+        self.assertTrue(len(links) > 0)
+        # METADATA_RE should filter it, so candidate extraction shouldn't treat raw line as content
+        # Ensure no crash
+
+    def test_status_block_plain(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            raw_dir = root / "raw" / "notes"
+            wiki_dir = root / "wiki" / "topics"
+            raw_dir.mkdir(parents=True)
+            wiki_dir.mkdir(parents=True)
+            raw_file = raw_dir / "note.md"
+            raw_file.write_text("# Raw\n> Source: X\n\nThe value is 2026-08-14 and 10,000.\n", encoding="utf-8")
+            article = wiki_dir / "page.md"
+            article.write_text(
+                "# Page\n> Raw: [Note](../../raw/notes/note.md)\n\n"
+                "> Status: Outdated (2026-08-16)\n"
+                "> Old claim was 99,999 but now outdated.\n\n"
+                "Current value is 10,000 on 2026-08-14.\n",
+                encoding="utf-8"
+            )
+            misses, errors = check_evidence.check_article(article, root)
+            # 99,999 inside status block should be ignored
+            self.assertNotIn("99,999", misses)
+            self.assertEqual(errors, [])
+
+    def test_unreferenced_posix(self):
+        # Ensure posix normalization prevents false orphans on windows-style paths
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            raw_dir = root / "raw" / "notes"
+            wiki_dir = root / "wiki" / "topics"
+            raw_dir.mkdir(parents=True)
+            wiki_dir.mkdir(parents=True)
+            raw = raw_dir / "a.md"
+            raw.write_text("# Raw\n\nData 10,000.\n", encoding="utf-8")
+            article = wiki_dir / "p.md"
+            article.write_text("# P\n> Raw: [A](../../raw/notes/a.md)\n\nData 10,000.\n", encoding="utf-8")
+            orphans = check_evidence.unreferenced_raws(root)
+            self.assertEqual(orphans, [])
+
+    def test_strict_flags(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            wiki_dir = root / "wiki" / "topics"
+            raw_dir = root / "raw" / "notes"
+            wiki_dir.mkdir(parents=True)
+            raw_dir.mkdir(parents=True)
+            raw = raw_dir / "x.md"
+            raw.write_text("# Raw\n\nHello 10,000.\n", encoding="utf-8")
+            # Article with hallucinated number -> suspect
+            art = wiki_dir / "bad.md"
+            art.write_text("# Bad\n> Raw: [X](../../raw/notes/x.md)\n\nHallucinated 99,999.\n", encoding="utf-8")
+            # Non-strict should return 0
+            self.assertEqual(check_evidence.main(["check_evidence.py", str(root)]), 0)
+            # Strict (errors/drift) should still 0 because suspect != error
+            self.assertEqual(check_evidence.main(["check_evidence.py", "--strict", str(root)]), 0)
+            # Strict-all should fail on suspect
+            self.assertEqual(check_evidence.main(["check_evidence.py", "--strict-all", str(root)]), 1)
+
 
 if __name__ == "__main__":
     unittest.main()

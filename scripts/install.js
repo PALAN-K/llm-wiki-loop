@@ -53,7 +53,13 @@ function findProjectRoot(start) {
   }
 }
 
+function isInsideNodeModules() {
+  // Detect if this package is being installed as a dependency inside node_modules
+  return __dirname.includes(`${path.sep}node_modules${path.sep}`) || __dirname.includes(`${path.sep}node_modules`);
+}
+
 function main() {
+  try {
   const installed = [];
   const global = isTruthy(process.env.npm_config_global);
   const customDir = process.env.SKILL_DIR || process.env.CUSTOM_SKILL_DIR;
@@ -93,11 +99,17 @@ function main() {
     }
 
     if (!runtimeFound && !customDir) {
-      try {
-        const fallbackDir = path.join(root, ".agents", "skills");
-        installed.push(copySkill(fallbackDir));
-      } catch (error) {
-        console.warn(`llm-wiki-loop: could not write fallback skill ${error.message}`);
+      // Avoid polluting consumer projects when installed as dependency inside node_modules
+      if (isInsideNodeModules()) {
+        console.log("llm-wiki-loop: installed as dependency inside node_modules - skipping project fallback skill install.");
+        console.log("Run 'npx llm-wiki-loop init' in your project to scaffold vault and install skill.");
+      } else {
+        try {
+          const fallbackDir = path.join(root, ".agents", "skills");
+          installed.push(copySkill(fallbackDir));
+        } catch (error) {
+          console.warn(`llm-wiki-loop: could not write fallback skill ${error.message}`);
+        }
       }
     }
   }
@@ -111,6 +123,10 @@ function main() {
     console.log("llm-wiki-loop: no supported agent runtime detected in this scope.");
     console.log("Copy the skill manually - see https://github.com/PALAN-K/llm-wiki-loop#quickstart");
   }
+  } catch (e) {
+    // Postinstall must never fail npm install
+    console.warn(`llm-wiki-loop: postinstall warning: ${e.message}`);
+  }
 }
 
-main();
+try { main(); } catch (e) { console.warn(`llm-wiki-loop: postinstall warning: ${e.message}`); }

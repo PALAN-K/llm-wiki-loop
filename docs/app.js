@@ -4,7 +4,8 @@
  */
 
 document.addEventListener('DOMContentLoaded', () => {
-  // 1. Terminal Typing Simulation
+  // 1. Terminal Typing Simulation (respects prefers-reduced-motion)
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const cmdElem = document.getElementById('typing-cmd');
   const outputElem = document.getElementById('term-output');
   const cursorElem = document.getElementById('cursor');
@@ -24,20 +25,48 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  setTimeout(typeCommand, 800);
+  if (prefersReduced) {
+    if (cmdElem) cmdElem.textContent = commandText;
+    if (cursorElem) cursorElem.style.display = 'none';
+    if (outputElem) outputElem.style.display = 'block';
+  } else {
+    setTimeout(typeCommand, 800);
+  }
 
-  // 2. Copy Command Handler
+  // 2. Copy Command Handler (with fallback and timer cleanup)
   const copyBtn = document.getElementById('btn-copy-term');
   const copyText = document.getElementById('copy-text');
+  let copyResetTimer = null;
 
-  copyBtn.addEventListener('click', () => {
-    navigator.clipboard.writeText('npx llm-wiki-loop init').then(() => {
-      copyText.textContent = 'Copied!';
-      setTimeout(() => {
-        copyText.textContent = 'Copy';
-      }, 2000);
+  function fallbackCopy(text) {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly', '');
+    ta.style.position = 'absolute';
+    ta.style.left = '-9999px';
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); } catch {}
+    document.body.removeChild(ta);
+  }
+
+  if (copyBtn) {
+    copyBtn.addEventListener('click', () => {
+      const doCopied = () => {
+        if (copyResetTimer) clearTimeout(copyResetTimer);
+        copyText.textContent = 'Copied!';
+        copyResetTimer = setTimeout(() => { copyText.textContent = 'Copy'; }, 2000);
+      };
+      const text = 'npx llm-wiki-loop init';
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(doCopied).catch(() => { fallbackCopy(text); doCopied(); });
+      } else {
+        fallbackCopy(text);
+        doCopied();
+      }
     });
-  });
+    copyBtn.setAttribute('aria-label', 'Copy install command');
+  }
 
   // 3. Interactive Wheel / Step Switcher
   const stepButtons = document.querySelectorAll('.wheel-step');
@@ -95,20 +124,32 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }, { passive: false });
 
+  // Throttle + auto-reset helper
   function throttleWheel() {
     isWheelThrottled = true;
-    setTimeout(() => {
-      isWheelThrottled = false;
-    }, 450);
+    resetAuto();
+    setTimeout(() => { isWheelThrottled = false; }, 450);
   }
 
-  // 4. Auto-rotate steps every 5 seconds if idle
-  let autoTimer = setInterval(() => {
-    let nextStep = currentStep >= totalSteps ? 1 : currentStep + 1;
-    setActiveStep(nextStep);
-  }, 4500);
+  // 4. Auto-rotate steps every 5 seconds if idle (pause on hover, resume on leave)
+  let autoTimer = null;
+  function startAuto() {
+    if (prefersReduced) return;
+    stopAuto();
+    autoTimer = setInterval(() => {
+      let nextStep = currentStep >= totalSteps ? 1 : currentStep + 1;
+      setActiveStep(nextStep);
+    }, 4500);
+  }
+  function stopAuto() {
+    if (autoTimer) { clearInterval(autoTimer); autoTimer = null; }
+  }
+  function resetAuto() {
+    stopAuto();
+    setTimeout(startAuto, 500);
+  }
+  startAuto();
 
-  wheelBox.addEventListener('mouseenter', () => {
-    clearInterval(autoTimer);
-  });
+  wheelBox.addEventListener('mouseenter', stopAuto);
+  wheelBox.addEventListener('mouseleave', startAuto);
 });
