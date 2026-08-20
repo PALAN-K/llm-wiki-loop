@@ -1,5 +1,7 @@
 # llm-wiki-loop
 
+> 🇰🇷 한국어판 — 영문은 [README.md](README.md) | 일본어판은 [README.ja.md](README.ja.md) | 라이브 데모: [EN](https://palan-k.github.io/llm-wiki-loop/) [JA](https://palan-k.github.io/llm-wiki-loop/ja/) [KO](https://palan-k.github.io/llm-wiki-loop/ko/)
+
 <p align="center">
   <a href="https://github.com/PALAN-K/llm-wiki-loop/actions/workflows/ci.yml"><img src="https://github.com/PALAN-K/llm-wiki-loop/actions/workflows/ci.yml/badge.svg" alt="CI Status" /></a>
   <a href="https://www.npmjs.com/package/llm-wiki-loop"><img src="https://img.shields.io/npm/v/llm-wiki-loop.svg" alt="npm version" /></a>
@@ -9,8 +11,8 @@
 </p>
 
 <p align="center">
-  <b>The Production Framework for Self-Improving & Self-Organizing LLM Knowledge Vaults.</b><br>
-  <i>Grounding Invariants • Event-Driven GC • Auto-Skillification • Multi-Agent 1-Click Injection</i>
+  <b>자기개선·자기조직화 LLM 지식 볼트를 위한 프로덕션 프레임워크</b><br>
+  <i>그라운딩 불변식 • 이벤트 기반 GC • 자동 스킬화 • 멀티 에이전트 원클릭 주입</i>
 </p>
 
 <p align="center">
@@ -20,7 +22,7 @@
 </p>
 
 <p align="center">
-  <b>🌏 Read in:</b> <a href="README.md">🇺🇸 English</a> • <a href="README.ja.md">🇯🇵 日本語</a> • <a href="README.ko.md">🇰🇷 한국어</a> &nbsp;|&nbsp; <b>🌐 Live Demo:</b> <a href="https://palan-k.github.io/llm-wiki-loop/">EN</a> • <a href="https://palan-k.github.io/llm-wiki-loop/ja/">JA</a> • <a href="https://palan-k.github.io/llm-wiki-loop/ko/">KO</a> &nbsp;|&nbsp; <i>Zero-DB • 100% Markdown • 7 Agents • 25 Tests • v1.3.0</i>
+  <b>🌏 Read in:</b> <a href="https://palan-k.github.io/llm-wiki-loop/">🇺🇸 English</a> • <a href="https://palan-k.github.io/llm-wiki-loop/ja/">🇯🇵 日本語</a> • <a href="https://palan-k.github.io/llm-wiki-loop/ko/">🇰🇷 한국어</a> &nbsp;|&nbsp; <i>Zero-DB • 100% Markdown • 7 에이전트 • 25 테스트 • v1.3.0</i>
 </p>
 
 ```bash
