@@ -52,7 +52,13 @@ jobs:
 
       - name: Publish to NPM
         if: env.NODE_AUTH_TOKEN != ''
-        run: npm publish --access public --provenance
+        run: |
+          PKG=$(node -p "require('./package.json').version")
+          if npm view "llm-wiki-loop@$PKG" version 2>/dev/null | grep -q "$PKG"; then
+            echo "::notice::llm-wiki-loop@$PKG already published, skipping publish"
+            exit 0
+          fi
+          npm publish --access public --provenance
 
       - name: Create GitHub Release
         if: success()
