@@ -38,6 +38,16 @@
 - Conventions: Standardized Vault Audit Ledger (log.md) definition and root-anchored naming across SPEC.md, SKILL.md, README.md, and docs/
 - Tests: Added E2E tests for constitution linking, idempotency, and clean unlinking (20/20 tests passing)
 - Release: llm-wiki-loop@1.2.0 published via GitHub Actions release.yml
+## [2026-08-20] update | Framework Integrity & Dogfooding Hardening and NPM v1.2.1 Release
+- Fix: SHA-256 per-file drift, 2-tier --strict, as_posix normalization, resolvePython >=3.9 gate, engines >=18.0.0, clean guard, Vault Integrity Guard
+- Fix: remove cache: npm requiring lock file, upgrade actions/checkout@v5 and setup-node@v5
+- Docs: scripts/sync-version.js single source for v1.2.1 and 2026-08-20, showcase prefers-reduced-motion and clipboard fallback
+- Tests: 25 tests passing (per-file, case-insensitive, status plain, posix, strict)
+- Release: llm-wiki-loop@1.2.1 published via GitHub Actions release.yml
+## [2026-08-20] ingest | Release Guards 1.2.1
+- Disposition: New
+- Raw: raw/notes/2026-08-20-incident-1.2.1-ci-release-guards.md
+- Updated: wiki/references/release-guards-1.2.1.md
 
 
 

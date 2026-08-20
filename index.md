@@ -6,3 +6,4 @@
 - [Cross-Platform CLI and CI/CD Architecture](wiki/topics/cross-platform-cli-and-cicd.md) — Node/Python runtime resolution, staged CI matrix, and distribution boundaries (Updated: 2026-08-17)
 ## references
 - [LLM Wiki Ecosystem Landscape](wiki/references/ecosystem-landscape.md) — 2026-08-14 survey of llm-wiki implementations, skill loops, and the unoccupied gap (Updated: 2026-08-14)
+- [Release Guards 1.2.1](wiki/references/release-guards-1.2.1.md) — CI guards for lock file, E403 duplicate publish, anchor leak, and version single source (Updated: 2026-08-20)
