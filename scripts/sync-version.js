@@ -11,16 +11,20 @@ const pkg = require(path.join(root, 'package.json'));
 const version = pkg.version;
 
 function syncIndexHtml() {
-  const p = path.join(root, 'docs', 'index.html');
-  if (!fs.existsSync(p)) return;
-  let html = fs.readFileSync(p, 'utf-8');
-  const before = html;
-  // Badge: v1.2.0
-  html = html.replace(/(<span class="logo-badge">)v[\d.]+(<\/span>)/, `$1v${version}$2`);
-  // Any other vX.Y.Z in html comments? keep minimal
-  if (html !== before) {
-    fs.writeFileSync(p, html, 'utf-8');
-    console.log(`[sync] docs/index.html -> v${version}`);
+  const paths = [
+    path.join(root, 'docs', 'index.html'),
+    path.join(root, 'docs', 'ja', 'index.html'),
+    path.join(root, 'docs', 'ko', 'index.html'),
+  ];
+  for (const p of paths) {
+    if (!fs.existsSync(p)) continue;
+    let html = fs.readFileSync(p, 'utf-8');
+    const before = html;
+    html = html.replace(/(<span class="logo-badge">)v[\d.]+(<\/span>)/g, `$1v${version}$2`);
+    if (html !== before) {
+      fs.writeFileSync(p, html, 'utf-8');
+      console.log(`[sync] ${path.relative(root, p)} -> v${version}`);
+    }
   }
 }
 
@@ -30,7 +34,7 @@ function syncSitemap() {
   let xml = fs.readFileSync(p, 'utf-8');
   const today = new Date().toISOString().split('T')[0];
   const before = xml;
-  xml = xml.replace(/<lastmod>[\d-]+<\/lastmod>/, `<lastmod>${today}</lastmod>`);
+  xml = xml.replace(/<lastmod>[\d-]+<\/lastmod>/g, `<lastmod>${today}</lastmod>`);
   if (xml !== before) {
     fs.writeFileSync(p, xml, 'utf-8');
     console.log(`[sync] docs/sitemap.xml -> ${today}`);

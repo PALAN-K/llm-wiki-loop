@@ -78,18 +78,24 @@ document.addEventListener('DOMContentLoaded', () => {
   function setActiveStep(stepNumber) {
     currentStep = stepNumber;
     stepButtons.forEach(btn => {
-      if (parseInt(btn.getAttribute('data-step')) === stepNumber) {
+      const isActive = parseInt(btn.getAttribute('data-step')) === stepNumber;
+      if (isActive) {
         btn.classList.add('active');
+        btn.setAttribute('aria-selected', 'true');
       } else {
         btn.classList.remove('active');
+        btn.setAttribute('aria-selected', 'false');
       }
     });
 
     displayCards.forEach((card, idx) => {
-      if (idx + 1 === stepNumber) {
+      const isActive = idx + 1 === stepNumber;
+      if (isActive) {
         card.classList.add('active');
+        card.setAttribute('aria-hidden', 'false');
       } else {
         card.classList.remove('active');
+        card.setAttribute('aria-hidden', 'true');
       }
     });
   }
@@ -98,6 +104,28 @@ document.addEventListener('DOMContentLoaded', () => {
     btn.addEventListener('click', () => {
       const step = parseInt(btn.getAttribute('data-step'));
       setActiveStep(step);
+      resetAuto();
+    });
+    btn.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        const step = parseInt(btn.getAttribute('data-step'));
+        setActiveStep(step);
+        resetAuto();
+      }
+      // Arrow navigation
+      if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+        e.preventDefault();
+        const next = Math.min(totalSteps, parseInt(btn.getAttribute('data-step')) + 1);
+        document.querySelector(`[data-step="${next}"]`)?.focus();
+        setActiveStep(next);
+      }
+      if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+        e.preventDefault();
+        const prev = Math.max(1, parseInt(btn.getAttribute('data-step')) - 1);
+        document.querySelector(`[data-step="${prev}"]`)?.focus();
+        setActiveStep(prev);
+      }
     });
   });
 

@@ -455,6 +455,12 @@ body {
   box-shadow: 0 0 20px rgba(0, 242, 254, 0.15);
 }
 
+.wheel-step:focus-visible {
+  outline: 2px solid var(--accent-cyan);
+  outline-offset: 2px;
+  border-color: var(--accent-cyan);
+}
+
 .step-num {
   font-family: var(--font-mono);
   font-size: 1.1rem;
