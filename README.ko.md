@@ -11,7 +11,7 @@
 </p>
 
 <p align="center">
-  <b>자기개선·자기조직화 LLM 지식 볼트를 위한 프로덕션 프레임워크</b><br>
+  <b>자기 개선 · 자기 조직화 LLM 지식 볼트를 위한 프로덕션 프레임워크</b><br>
   <i>그라운딩 불변식 • 이벤트 기반 GC • 자동 스킬화 • 멀티 에이전트 원클릭 주입</i>
 </p>
 
@@ -22,42 +22,42 @@
 </p>
 
 <p align="center">
-  <b>🌏 Read in:</b> <a href="https://palan-k.github.io/llm-wiki-loop/">🇺🇸 English</a> • <a href="https://palan-k.github.io/llm-wiki-loop/ja/">🇯🇵 日本語</a> • <a href="https://palan-k.github.io/llm-wiki-loop/ko/">🇰🇷 한국어</a> &nbsp;|&nbsp; <i>Zero-DB • 100% Markdown • 7 에이전트 • 25 테스트 • v1.3.0</i>
+  <b>🌏 언어:</b> <a href="README.md">🇺🇸 English</a> • <a href="README.ja.md">🇯🇵 日本語</a> • <a href="README.ko.md">🇰🇷 한국어</a> &nbsp;|&nbsp; <b>🌐 라이브 데모:</b> <a href="https://palan-k.github.io/llm-wiki-loop/">EN</a> • <a href="https://palan-k.github.io/llm-wiki-loop/ja/">JA</a> • <a href="https://palan-k.github.io/llm-wiki-loop/ko/">KO</a> &nbsp;|&nbsp; <i>Zero-DB • 100% Markdown • 7개 에이전트 • 25개 테스트 • v1.3.0</i>
 </p>
 
 ```bash
-# ⚡ 1-Second Setup: Zero DB/daemons, 100% pure Markdown 3-layer vault + 7-Agent skill injection
+# ⚡ 1초 설정: Zero DB/데몬, 100% 순수 Markdown 3계층 볼트 + 7개 에이전트 스킬 주입
 npx llm-wiki-loop init
 ```
 
 ---
 
-### ⚡ Why Ordinary AI Notes Fail vs. `llm-wiki-loop`
+### ⚡ 왜 일반 AI 메모는 실패하는가 vs. `llm-wiki-loop`
 
-| ❌ Ordinary AI Notes / Karpathy Wiki | ✅ `llm-wiki-loop` Architecture |
+| ❌ 일반 AI 메모 / Karpathy Wiki | ✅ `llm-wiki-loop` 아키텍처 |
 | :--- | :--- |
-| **Silent Hallucinations**: AI subtly fabricates numbers & quotes over time | **0-Token Machine Grounding**: `check_evidence.py` mechanically matches 100% of facts against immutable `raw/` sources |
-| **Expensive Code Drift**: Re-reading codebase every session burns $$$ tokens | **Universal Fingerprint**: `git diff` checks monitored code in 0.01s without LLM tokens |
-| **Knowledge Silos**: Fixes stay as text; agent repeats the same errors | **Auto-Skillification**: Frequent fixes (2+) automatically evolve into permanent `.agents/skills` |
-| **Framework Bloat**: Heavy databases, complex server setups | **Zero-Dependency Simplicity**: 100% pure Markdown (`raw/`, `wiki/`, `archive/`) |
+| **조용한 할루시네이션**: AI가 시간이 지남에 따라 수치와 인용을 은근히 날조 | **0-토큰 기계적 그라운딩**: `check_evidence.py`가 불변의 `raw/` 소스에 대해 100% 사실을 기계적으로 대조 |
+| **비용이 큰 코드 드리프트**: 매 세션마다 코드베이스를 다시 읽어 $$$ 토큰을 소모 | **유니버설 Fingerprint**: `git diff`가 LLM 토큰 없이 0.01초 만에 감시 대상 코드를 검증 |
+| **지식 사일로**: 수정 사항이 텍스트로만 남아 에이전트가 같은 오류를 반복 | **자동 스킬화**: 빈번한 수정(2회 이상)이 자동으로 영구적인 `.agents/skills`로 진화 |
+| **프레임워크 비대화**: 무거운 데이터베이스와 복잡한 서버 구성 | **무의존 단순성**: 100% 순수 Markdown (`raw/`, `wiki/`, `archive/`) |
 
 ---
 
-## 💡 What is llm-wiki-loop?
+## 💡 llm-wiki-loop란?
 
-**llm-wiki-loop** transforms volatile AI outputs into an **immutable, self-organizing second brain**. 
+**llm-wiki-loop**는 불안정한 AI 출력을 **불변의 자기 조직화 세컨드 브레인**으로 변환합니다.
 
-Most LLM notes gradually hallucinate, cite outdated assumptions, or bloat over time. **llm-wiki-loop** fixes this at the architectural layer:
-- 🛡️ **0-Hallucination Machine Grounding**: Every number, date, and quote in `wiki/` is mechanically verified against immutable `raw/` sources using `check_evidence.py` (now with `--strict`/`--strict-all` 2-tier).
-- 🔍 **0-Token Code Drift Detection**: Wiki articles track source code implementations with **Universal Fingerprints** (`Fingerprint: git:<hash>` & per-file `sha256:<hex>`), saving 99% of token context costs on session startup.
-- ♻️ **Self-Organizing Vault**: Outdated facts are automatically tagged `Status: Outdated` or `Status: Disputed` and archived—never deleted, preserving complete historical fidelity.
-- ⚡ **Auto-Skillify Evolution**: Repeated solutions and error fixes (2+ times) logged in `log.md` are automatically promoted into reusable agent skills. New `npm run scan:skills` reports candidates with zero overhead.
-- 🌏 **Global & Accessible Showcase**: EN/JA/KO live demos (`/ja/` `/ko/`) with `hreflang` sitemap, keyboard-navigable wheel and `prefers-reduced-motion` support.
-- 🎯 **Zero Friction for Beginners**: One command (`npx llm-wiki-loop init`) instantly equips **Claude Code, Cursor, Codex, OpenCode, Gemini, Windsurf, and CommandCode** with structured knowledge.
+대부분의 LLM 노트는 점차 할루시네이션을 일으키고, 오래된 가정을 인용하거나, 시간이 지남에 따라 비대해집니다. **llm-wiki-loop**는 이를 아키텍처 차원에서 해결합니다:
+- 🛡️ **할루시네이션 제로 기계적 그라운딩**: `wiki/` 안의 모든 수치, 날짜, 인용은 `check_evidence.py` (새로운 `--strict`/`--strict-all` 2단계 지원)를 통해 불변의 `raw/` 소스에 대해 기계적으로 검증됩니다.
+- 🔍 **0-토큰 코드 드리프트 감지**: Wiki 문서는 **유니버설 Fingerprint**(`Fingerprint: git:<hash>` 및 파일별 `sha256:<hex>`)로 소스 코드 구현을 추적하여 세션 시작 시 토큰 컨텍스트 비용을 99% 절감합니다.
+- ♻️ **자기 조직화 볼트**: 오래된 사실은 자동으로 `Status: Outdated` 또는 `Status: Disputed` 태그가 부여되어 아카이브됩니다 — 삭제되지 않으며 완전한 히스토리 충실도를 보존합니다.
+- ⚡ **자동 스킬화 진화**: `log.md`에 기록된 반복된 해결책과 오류 수정(2회 이상)은 재사용 가능한 에이전트 스킬로 자동 승격됩니다. 새로운 `npm run scan:skills`가 후보를 오버헤드 없이 보고합니다.
+- 🌏 **글로벌 및 접근성 높은 쇼케이스**: `hreflang` 사이트맵, 키보드 탐색 가능한 휠, `prefers-reduced-motion` 지원을 갖춘 EN/JA/KO 라이브 데모(`/ja/` `/ko/`)를 제공합니다.
+- 🎯 **초보자도 마찰 없는 경험**: 단 하나의 명령어(`npx llm-wiki-loop init`)로 **Claude Code, Cursor, Codex, OpenCode, Gemini, Windsurf, CommandCode**에 구조화된 지식을 즉시 장착합니다.
 
 ---
 
-## 🧬 Self-Organizing Architecture & Lifecycle
+## 🧬 자기 조직화 아키텍처와 라이프사이클
 
 ```mermaid
 flowchart TD
@@ -108,22 +108,22 @@ flowchart TD
 
 ---
 
-## 🔥 Key Pillars: Why It's Built Differently
+## 🔥 핵심 축: 왜 다르게 설계되었는가
 
-| Capability | Ordinary AI Notes / RAG | **llm-wiki-loop** |
+| 기능 | 일반 AI 메모 / RAG | **llm-wiki-loop** |
 |---|---|---|
-| **Grounding** | Probabilistic, hallucination-prone | **Mechanically verified**: numbers & quotes must match raw sources verbatim |
-| **Code Freshness** | Blindly re-reads code files every session ($$$ tokens) | **0-Token Universal Fingerprint**: `git diff` detects drift in 0.01s without token waste |
-| **History & Truth** | Silently overwrites or deletes | **Status blocks + archive/**: immutable truth with evolutionary audit logs |
-| **Vault Organization** | Manual curation / bloat | **Event-based GC**: self-organizing progressive disclosure (`index.md`) |
-| **Agent Portability** | Vendor lock-in (single IDE) | **Universal Adapter**: 1-click install across 7+ AI agent runtimes |
-| **Self-Evolution** | Static prompts | **Auto-skillifying**: frequent workflows evolve into automated agent skills |
+| **그라운딩** | 확률적이고 할루시네이션에 취약 | **기계적으로 검증됨**: 수치와 인용은 raw 소스와 verbatim 일치해야 함 |
+| **코드 최신성** | 매 세션마다 코드 파일을 맹목적으로 다시 읽음 ($$$ 토큰 소모) | **0-토큰 유니버설 Fingerprint**: `git diff`가 드리프트를 0.01초 만에 감지, 토큰 낭비 없음 |
+| **히스토리와 진실** | 조용히 덮어쓰거나 삭제 | **Status 블록 + archive/**: 진화 감사 로그를 동반한 불변의 진실 |
+| **볼트 정리** | 수동 큐레이션 / 비대화 | **이벤트 기반 GC**: 자기 조직화 점진적 공개(`index.md`) |
+| **에이전트 이식성** | 벤더 종속(단일 IDE) | **유니버설 어댑터**: 7개 이상의 AI 에이전트 런타임에 원클릭 설치 |
+| **자기 진화** | 정적 프롬프트 | **자동 스킬화**: 빈번한 워크플로가 자동화된 에이전트 스킬로 진화 |
 
 ---
 
-## ⚡ Universal Fingerprint & 0-Token Code Drift Detection
+## ⚡ 유니버설 Fingerprint와 0-토큰 코드 드리프트 감지
 
-When connecting your LLM knowledge vault to an active software engineering repository, keeping wiki articles synchronized with source code changes is paramount:
+LLM 지식 볼트를 활성화된 소프트웨어 엔지니어링 리포지토리에 연결할 때, wiki 문서를 소스 코드 변경과 동기화된 상태로 유지하는 것이 무엇보다 중요합니다:
 
 ```markdown
 # Authentication Architecture Overview
@@ -132,45 +132,45 @@ When connecting your LLM knowledge vault to an active software engineering repos
 > Monitored: src/auth/jwt.ts, src/auth/session.ts, package.json
 ```
 
-1. **Intuitive**: Human-readable markdown header clearly stating the baseline Git commit and monitored files.
-2. **Ultra-lightweight (Zero-Config)**: 0 extra databases, 0 daemons. Fully leverages standard Git version control.
-3. **Token & Compute Efficient**: AI does not waste tens of thousands of tokens re-reading intact codebases. `npx llm-wiki check .` immediately identifies drifted articles in milliseconds.
+1. **직관적**: 기준 Git 커밋과 감시 대상 파일을 명확히 보여주는 사람이 읽을 수 있는 Markdown 헤더.
+2. **초경량 (Zero-Config)**: 추가 데이터베이스 0개, 데몬 0개. 표준 Git 버전 관리를 그대로 활용합니다.
+3. **토큰 및 컴퓨트 효율적**: AI는 손상되지 않은 코드베이스를 다시 읽기 위해 수만 토큰을 낭비하지 않습니다. `npx llm-wiki check .`가 드리프트된 문서를 밀리초 단위로 즉시 식별합니다.
 
 
 ---
 
-## 🚀 Quickstart: True 1-Click Agent Setup
+## 🚀 빠른 시작: 진정한 원클릭 에이전트 설정
 
-Run **just one command** in your project terminal:
+프로젝트 터미널에서 **단 하나의 명령어**만 실행하세요:
 
 ```bash
 npx llm-wiki-loop init
 ```
 
-### ⚡ What Happens in that 1 Second?
-1. 📂 **Capsules Knowledge Vault**: Scaffolds a complete 3-layer vault in `./llm-wiki-loop/` (`raw/`, `wiki/`, `archive/`, `index.md`, `log.md`, `AGENTS.md`) without polluting your project root.
-2. 🏛️ **Non-Destructive Constitution Linking**: Automatically links the vault protocol to your project's root `AGENTS.md` without overwriting existing project rules.
-3. 🤖 **Equips All AI Agents**: Automatically detects and injects the `wiki-manager` skill into **Claude Code, Cursor, Codex, Gemini, OpenCode, Windsurf, and CommandCode** (or defaults to `.agents/skills/`).
-4. 🛡️ **Zero Token Waste & Zero Config**: Grounding invariants, 0-token git drift detection, and auto-skillification are active immediately.
+### ⚡ 이 1초 동안 무슨 일이 일어나나요?
+1. 📂 **지식 볼트 캡슐화**: 프로젝트 루트를 오염시키지 않고 `./llm-wiki-loop/`(`raw/`, `wiki/`, `archive/`, `index.md`, `log.md`, `AGENTS.md`)에 완전한 3계층 볼트를 구성합니다.
+2. 🏛️ **비파괴적 컨스티튜션 연결**: 기존 프로젝트 규칙을 덮어쓰지 않고 볼트 프로토콜을 프로젝트 루트의 `AGENTS.md`에 자동으로 연결합니다.
+3. 🤖 **모든 AI 에이전트 장착**: **Claude Code, Cursor, Codex, Gemini, OpenCode, Windsurf, CommandCode**를 자동으로 감지하고 `wiki-manager` 스킬을 주입합니다(감지되지 않으면 `.agents/skills/`로 대체).
+4. 🛡️ **토큰 낭비 제로 및 설정 제로**: 그라운딩 불변식, 0-토큰 git 드리프트 감지, 자동 스킬화가 즉시 활성화됩니다.
 
 ---
 
-### 💡 Daily Workflow (Prompt Your AI Agent)
+### 💡 일일 워크플로 (AI 에이전트에게 프롬프트하기)
 
-After running `npx llm-wiki-loop init`, simply prompt your AI agent inside your IDE / CLI:
+`npx llm-wiki-loop init`을 실행한 후에는 IDE / CLI 안에서 AI 에이전트에게 간단히 프롬프트하면 됩니다:
 
 ```text
 Prompt to Agent:
 "I dropped a paper in raw/notes/2026-08-17-analysis.md. Ingest it into wiki/topics/ and verify grounding."
 ```
 
-Your AI agent uses the installed `wiki-manager` skill to automatically triage, compile with exact verbatim provenance, and update `index.md` & `log.md`.
+AI 에이전트는 설치된 `wiki-manager` 스킬을 사용해 자동으로 트리아지하고, 정확한 verbatim 출처와 함께 컴파일하며, `index.md`와 `log.md`를 업데이트합니다.
 
 ---
 
-## 🛠️ CLI Commands & Tooling
+## 🛠️ CLI 명령어와 도구
 
-The built-in CLI (`npx llm-wiki-loop` or `llm-wiki`) works cross-platform (Windows, macOS, Linux):
+내장 CLI(`npx llm-wiki-loop` 또는 `llm-wiki`)는 크로스 플랫폼(Windows, macOS, Linux)에서 동작합니다:
 
 ```
 Usage:
@@ -204,11 +204,11 @@ Extras (npm scripts):
 
 ---
 
-## 📂 Vault Structure & Responsibilities
+## 📂 볼트 구조와 역할
 
-llm-wiki-loop supports both **embedded mode** (inside existing apps) and **standalone mode** (dedicated knowledge repo):
+llm-wiki-loop는 **임베디드 모드**(기존 앱 내부)와 **스탠드얼론 모드**(전용 지식 리포지토리) 모두를 지원합니다:
 
-### Mode 1: Embedded Vault (Recommended for Existing Projects)
+### 모드 1: 임베디드 볼트 (기존 프로젝트에 권장)
 ```
 <your-project>/
 ├── AGENTS.md                      # [LINKED] Project constitution (auto-linked with Vault Protocol)
@@ -225,7 +225,7 @@ llm-wiki-loop supports both **embedded mode** (inside existing apps) and **stand
 └── package.json
 ```
 
-### Mode 2: Standalone Knowledge Vault
+### 모드 2: 스탠드얼론 지식 볼트
 ```
 <knowledge-vault>/
 ├── raw/                           # [IMMUTABLE] Sources: notes/, data/, assets/ (Never edited by LLM)
@@ -238,40 +238,40 @@ llm-wiki-loop supports both **embedded mode** (inside existing apps) and **stand
 
 ---
 
-### The 6 Core Vault Operations
+### 6가지 핵심 볼트 오퍼레이션
 
-Every conformant agent strictly adheres to the 6 vault lifecycle operations:
+모든 규격 준수 에이전트는 6가지 볼트 라이프사이클 오퍼레이션을 엄격히 따릅니다:
 
-| Operation | Purpose | Lifecycle Flow |
+| 오퍼레이션 | 목적 | 라이프사이클 흐름 |
 |---|---|---|
-| `init` | **Bootstrap**: Scaffolds layout, installs agent skills, establishes schema, and sets up index/log. | CLI / Agent $\rightarrow$ Scaffold $\rightarrow$ Schema verification |
-| `ingest` | **Knowledge Absorption**: Raw sources $\rightarrow$ 4-tier triage $\rightarrow$ Compiled knowledge with verbatim `Raw:` links. | `raw/` $\rightarrow$ Triage (New / Update / Disputed) $\rightarrow$ `wiki/` $\rightarrow$ Sync `index.md` & `log.md` |
-| `query` | **Progressive Disclosure**: High-precision answer retrieval with minimal token consumption. | Read `index.md` (L1) $\rightarrow$ Targeted `wiki/` page read (L2) $\rightarrow$ Synthesize with citations |
-| `lint` | **3-Tier Health Check**: Structural formatting, mechanical evidence verification, and judgment review. | Schema check $\rightarrow$ `check_evidence.py` $\rightarrow$ Fix ungrounded claims |
-| `loop` | **Self-Evolution & GC**: Event-driven garbage collection and auto-skillification of repeated solutions. | Detect outdated facts $\rightarrow$ Move to `archive/` $\rightarrow$ Detect 2+ recurring patterns $\rightarrow$ Promote to `SKILL.md` |
-| `audit` | **Skill Coverage Audit**: Evaluates existing skills against official docs and execution logs. | Log inspection $\rightarrow$ Gap analysis $\rightarrow$ Skill refinement |
+| `init` | **부트스트랩**: 레이아웃 구성, 에이전트 스킬 설치, 스키마 확립, index/log 설정. | CLI / Agent $\rightarrow$ Scaffold $\rightarrow$ Schema verification |
+| `ingest` | **지식 흡수**: Raw 소스 $\rightarrow$ 4단계 트리아지 $\rightarrow$ verbatim `Raw:` 링크가 포함된 컴파일된 지식. | `raw/` $\rightarrow$ Triage (New / Update / Disputed) $\rightarrow$ `wiki/` $\rightarrow$ Sync `index.md` & `log.md` |
+| `query` | **점진적 공개**: 최소 토큰 소비로 고정밀 답변 검색. | Read `index.md` (L1) $\rightarrow$ Targeted `wiki/` page read (L2) $\rightarrow$ Synthesize with citations |
+| `lint` | **3단계 헬스 체크**: 구조적 포맷, 기계적 근거 검증, 판단 검토. | Schema check $\rightarrow$ `check_evidence.py` $\rightarrow$ Fix ungrounded claims |
+| `loop` | **자기 진화와 GC**: 이벤트 기반 가비지 컬렉션과 반복된 해결책의 자동 스킬화. | Detect outdated facts $\rightarrow$ Move to `archive/` $\rightarrow$ Detect 2+ recurring patterns $\rightarrow$ Promote to `SKILL.md` |
+| `audit` | **스킬 커버리지 감사**: 기존 스킬을 공식 문서와 실행 로그에 대해 평가. | Log inspection $\rightarrow$ Gap analysis $\rightarrow$ Skill refinement |
 
 ---
 
-## 🧠 Seamless Integration with Obsidian & AI IDEs
+## 🧠 Obsidian 및 AI IDE와의 매끄러운 통합
 
-Because **llm-wiki-loop** relies exclusively on plain Markdown, it fits naturally into existing workflows:
-- **Obsidian**: Open the repository or `llm-wiki-loop/` folder directly. Configure `raw/assets/` as the attachment folder for screenshots and research papers.
-- **Cursor & Windsurf**: Rules and skills reside in `.cursor/skills/` or `.windsurf/skills/`, instantly empowering the in-editor agent.
-- **Claude Code, Codex & Gemini**: Uses standard `.claude/skills/` and `.agents/skills/` distribution for zero-setup command line execution.
-
----
-
-## 🤝 Contributing & Community
-
-We welcome contributions from the open-source community! 
-- Check out [CONTRIBUTING.md](CONTRIBUTING.md) for local testing instructions, multi-runtime adapter guides, and architecture specifications.
-- Read [SPEC.md](SPEC.md) for the formal normative specification of the LLM-wiki standard.
+**llm-wiki-loop**는 순수 Markdown에만 의존하므로 기존 워크플로에 자연스럽게 녹아듭니다:
+- **Obsidian**: 리포지토리 또는 `llm-wiki-loop/` 폴더를 직접 여세요. `raw/assets/`를 스크린샷과 연구 논문용 첨부 폴더로 설정하세요.
+- **Cursor & Windsurf**: 규칙과 스킬은 `.cursor/skills/` 또는 `.windsurf/skills/`에 위치하여 에디터 내 에이전트를 즉시 강화합니다.
+- **Claude Code, Codex & Gemini**: 제로 설정 명령줄 실행을 위해 표준 `.claude/skills/` 및 `.agents/skills/` 배포를 사용합니다.
 
 ---
 
-## 📄 License & Acknowledgments
+## 🤝 기여와 커뮤니티
 
-- **License**: [MIT](LICENSE)
-- **Conceptual Grounding**: The LLM-Wiki pattern (immutable raw sources, LLM-compiled wiki, grounding loop) originated from [Andrej Karpathy's gist](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f) (2026-04-04).
-- `check_evidence.py` is adapted from [Astro-Han/karpathy-llm-wiki](https://github.com/Astro-Han/karpathy-llm-wiki) (MIT).
+오픈소스 커뮤니티의 기여를 환영합니다!
+- 로컬 테스트 방법, 멀티 런타임 어댑터 가이드, 아키텍처 명세는 [CONTRIBUTING.md](CONTRIBUTING.md)를 확인하세요.
+- LLM-wiki 표준의 정식 규범 명세는 [SPEC.md](SPEC.md)를 참고하세요.
+
+---
+
+## 📄 라이선스 및 감사의 말
+
+- **라이선스**: [MIT](LICENSE)
+- **개념적 기반**: LLM-Wiki 패턴(불변의 raw 소스, LLM이 컴파일하는 wiki, 그라운딩 루프)은 [Andrej Karpathy의 gist](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f)(2026-04-04)에서 유래했습니다.
+- `check_evidence.py`는 [Astro-Han/karpathy-llm-wiki](https://github.com/Astro-Han/karpathy-llm-wiki)(MIT)에서 개작되었습니다.
