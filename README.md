@@ -19,6 +19,10 @@
   </a>
 </p>
 
+<p align="center">
+  <b>🌏 Read in:</b> <a href="https://palan-k.github.io/llm-wiki-loop/">🇺🇸 English</a> • <a href="https://palan-k.github.io/llm-wiki-loop/ja/">🇯🇵 日本語</a> • <a href="https://palan-k.github.io/llm-wiki-loop/ko/">🇰🇷 한국어</a> &nbsp;|&nbsp; <i>Zero-DB • 100% Markdown • 7 Agents • 25 Tests • v1.3.0</i>
+</p>
+
 ```bash
 # ⚡ 1-Second Setup: Zero DB/daemons, 100% pure Markdown 3-layer vault + 7-Agent skill injection
 npx llm-wiki-loop init
@@ -42,10 +46,11 @@ npx llm-wiki-loop init
 **llm-wiki-loop** transforms volatile AI outputs into an **immutable, self-organizing second brain**. 
 
 Most LLM notes gradually hallucinate, cite outdated assumptions, or bloat over time. **llm-wiki-loop** fixes this at the architectural layer:
-- 🛡️ **0-Hallucination Machine Grounding**: Every number, date, and quote in `wiki/` is mechanically verified against immutable `raw/` sources using `check_evidence.py`.
-- 🔍 **0-Token Code Drift Detection**: Wiki articles track source code implementations with **Universal Fingerprints** (`Fingerprint: git:<hash>` & `Monitored: <paths>`), saving 99% of token context costs on session startup.
+- 🛡️ **0-Hallucination Machine Grounding**: Every number, date, and quote in `wiki/` is mechanically verified against immutable `raw/` sources using `check_evidence.py` (now with `--strict`/`--strict-all` 2-tier).
+- 🔍 **0-Token Code Drift Detection**: Wiki articles track source code implementations with **Universal Fingerprints** (`Fingerprint: git:<hash>` & per-file `sha256:<hex>`), saving 99% of token context costs on session startup.
 - ♻️ **Self-Organizing Vault**: Outdated facts are automatically tagged `Status: Outdated` or `Status: Disputed` and archived—never deleted, preserving complete historical fidelity.
-- ⚡ **Auto-Skillify Evolution**: Repeated solutions and error fixes (2+ times) logged in `log.md` are automatically promoted into reusable agent skills.
+- ⚡ **Auto-Skillify Evolution**: Repeated solutions and error fixes (2+ times) logged in `log.md` are automatically promoted into reusable agent skills. New `npm run scan:skills` reports candidates with zero overhead.
+- 🌏 **Global & Accessible Showcase**: EN/JA/KO live demos (`/ja/` `/ko/`) with `hreflang` sitemap, keyboard-navigable wheel and `prefers-reduced-motion` support.
 - 🎯 **Zero Friction for Beginners**: One command (`npx llm-wiki-loop init`) instantly equips **Claude Code, Cursor, Codex, OpenCode, Gemini, Windsurf, and CommandCode** with structured knowledge.
 
 ---
@@ -174,6 +179,7 @@ Commands:
   init [dir]          ✨ 1-Click setup: Scaffold vault & auto-install agent skill
                       (default: ./llm-wiki-loop. Pass '.' or --root for current project root)
   check [vaultDir]    🛡️ Run mechanical evidence verification (0-hallucination check)
+                      [--strict: fail on errors/drift, --strict-all: also fail on suspects]
   doctor [vaultDir]   🩺 Diagnose Python environment, detected AI agent runtimes & vault schema
   install [options]   🤖 Manually inject/update wiki-manager skill into agent runtimes
   clean [dir]         🧹 Safely remove scaffolded vault files & unlinks constitution anchors
@@ -188,6 +194,10 @@ Options for 'init':
 Options for 'install':
   --global, -g        Install to global user home directories (~/.claude, ~/.agents, etc.)
   --custom <path>     Install to a custom skill directory
+
+Extras (npm scripts):
+  npm run scan:skills  🔍 Report skill candidates from log.md (2+ repeats, 0 overhead)
+  npm run sync:version 🔄 Sync package.json version → docs badges + sitemap (prepack)
 ```
 
 ---
