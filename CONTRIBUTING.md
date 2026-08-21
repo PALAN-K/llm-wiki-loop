@@ -58,7 +58,20 @@ To add a new AI coding agent runtime (e.g., `.cursor`, `.claude`, `.gemini`, `.w
 
 ---
 
-## 4. Submitting Pull Requests
+## 4. Release Pipeline (Version Bump)
+
+Every version bump **must** update all four in one commit (no separate follow-up — amend if missed):
+
+1. `package.json:3` version → `npm run sync:version` (syncs `docs/index.html:33` badge + `docs/sitemap.xml:5` lastmod)
+2. `CHANGELOG.md` — new `## [x.y.z] - YYYY-MM-DD` entry (Keep a Changelog)
+3. `log.md` — `## [YYYY-MM-DD] update | <title> (vX.Y.Z)` entry (Vault Audit Ledger)
+4. Verify: `npm run wiki:lint` (`node bin/cli.js check --strict .`, 0 errors) + `npm test`
+
+Then `git push origin master` (CI) and `git tag vX.Y.Z && git push origin vX.Y.Z` (Release & Publish → `npm publish --provenance`). `release.yml:32` enforces `tag == package.json version`.
+
+---
+
+## 5. Submitting Pull Requests
 
 1. Fork the repo and create a feature branch (`git checkout -b feat/my-feature`).
 2. Ensure all tests pass locally (`npm test` and `npm run lint`).

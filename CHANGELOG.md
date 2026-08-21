@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.3.1] - 2026-08-21
+
+### 🔒 Dual-Tier Commit Template and wiki:lint Guard (Patch)
+
+Closes the "AI ignores 3-layer docs at commit" gap with zero-dep, fail-safe nudges — no Husky, no extra process.
+
+#### Added
+- **Commit Template (`.github/commit-template.txt`)**: 3-item wiki checklist (`Raw` + `wiki` + `index/log` + `verify`) auto-shown on `git commit`. Wired via `bin/cli.js:179` `configureCommitTemplate()` — idempotent `git config commit.template` on `init`, fail-safe (`try/catch`, `.git` guard), never blocks install.
+- **Local Verify Scripts (`package.json:34`)**: `wiki:lint: node bin/cli.js check --strict .` and `lint:all: npm run lint && npm run wiki:lint`. Mirrors `release.yml:45`/`ci.yml` strict gate locally with `py` fallback (`py → python → python3`).
+- **Schema Nudge (`AGENTS.md:18`)**: Verification now lists `check --strict` **or** `npm run wiki:lint` and states `Commit: index.md + log.md together, checklist in .github/commit-template.txt — local is nudge, CI (check --strict) is the gate.`
+
+#### Changed
+- **Version Single Source**: `package.json:3` `1.3.0 → 1.3.1` via `scripts/sync-version.js` → `docs/index.html:33` / `docs/ja/index.html:33` / `docs/ko/index.html:33` badge and `docs/sitemap.xml:5` `lastmod 2026-08-21`.
+- **Docs Boundary Clarified**: `.npmignore:12` isolates vault for `npm install -g` users, `.gitignore:12` `scratch/` + `*.local.md` + `raw/notes/internal-*` isolates internal scratch for contributors — `wiki/` stays tracked (CI reference).
+
+#### Fixed
+- **Pipeline Consistency**: patch closes gap where version bump could ship without `CHANGELOG.md` update (see `CONTRIBUTING.md:4` Release Pipeline).
+
+---
+
 ## [1.3.0] - 2026-08-20
 
 ### 🌏 i18n, a11y, and 8.5 Lite — Formal Release

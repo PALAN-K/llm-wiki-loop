@@ -1,0 +1,13 @@
+# type(scope): subject  — e.g. feat(cli): add wiki fingerprint
+#
+# Body (optional): explain why, not just what.
+#
+# --- Wiki checklist (complete before commit; delete unchecked lines) ---
+# [ ] wiki: Raw sources in raw/notes/ (if knowledge changed)
+# [ ] wiki: wiki/ pages updated + Raw: + Fingerprint bumped (if needed)
+# [ ] wiki: index.md + log.md updated together (every write)
+# [ ] verify: npm run wiki:lint  (or: py skills/wiki-manager/scripts/check_evidence.py --strict .)
+# --- End wiki checklist ---
+#
+# Verification: python3 skills/wiki-manager/scripts/check_evidence.py --strict .  (Windows: py)
+# SPEC: vault conformance = 0 evidence errors + index row count == page count + parseable log entry

@@ -176,6 +176,23 @@ function linkRootConstitution(projectRoot, vaultDir) {
   }
 }
 
+function configureCommitTemplate(projectRoot) {
+  try {
+    const templatePath = path.join(projectRoot, '.github', 'commit-template.txt');
+    if (!fs.existsSync(templatePath)) return;
+    if (!fs.existsSync(path.join(projectRoot, '.git'))) return;
+    // Fail-safe: never block init on git errors
+    const relPath = path.relative(projectRoot, templatePath).replace(/\\/g, '/');
+    const current = spawnSync('git', ['config', '--get', 'commit.template'], { cwd: projectRoot, encoding: 'utf-8' });
+    const existing = current.status === 0 ? (current.stdout || '').trim() : '';
+    if (existing === relPath || existing === templatePath) return;
+    const res = spawnSync('git', ['config', 'commit.template', relPath], { cwd: projectRoot, encoding: 'utf-8' });
+    if (res.status === 0) {
+      console.log(`[+] Configured git commit.template -> ${relPath}`);
+    }
+  } catch {}
+}
+
 function escapeRegex(str) {
   return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
@@ -507,7 +524,10 @@ function runInit(rawArgs = []) {
       projectRoot = null;
     }
   } catch { projectRoot = findProjectRoot(process.cwd()) || process.cwd(); }
-  if (projectRoot) linkRootConstitution(projectRoot, root);
+  if (projectRoot) {
+    linkRootConstitution(projectRoot, root);
+    configureCommitTemplate(projectRoot);
+  }
 
   // 1-Click Auto-install Agent Skill
   let installedSkills = [];

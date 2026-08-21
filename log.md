@@ -48,6 +48,13 @@
 - Disposition: New
 - Raw: raw/notes/2026-08-20-incident-1.2.1-ci-release-guards.md
 - Updated: wiki/references/release-guards-1.2.1.md
+## [2026-08-21] update | Dual-Tier Commit Template and wiki:lint Guard (v1.3.1)
+- Template: .github/commit-template.txt added (wiki checklist: Raw + wiki + index/log + verify)
+- Schema: AGENTS.md Verification — nudge (commit-template) + gate (CI check --strict) clarified
+- CLI: bin/cli.js configureCommitTemplate() wired into init (idempotent git config, fail-safe)
+- Scripts: package.json wiki:lint + lint:all (lint && wiki:lint) for local 1-line verify
+- Docs: .gitignore already isolates scratch (*.local.md, raw/notes/internal-*); .npmignore isolates vault for npm users
+- Release: llm-wiki-loop@1.3.1 via GitHub Actions release.yml
 
 
 

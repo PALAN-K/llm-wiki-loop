@@ -15,7 +15,8 @@ raw/ (immutable) | wiki/ (LLM-owned) | archive/ (superseded) | index.md | log.md
 7. **Proposal-first loop.** Auto-skillifying & archiving require human approval before write.
 
 ## Verification
-`python3 skills/wiki-manager/scripts/check_evidence.py .` (Windows: `py`). Zero errors required.
+`python3 skills/wiki-manager/scripts/check_evidence.py --strict .` (Windows: `py`) or `npm run wiki:lint`. Zero errors required.
+Commit: `index.md` + `log.md` updated together, checklist in `.github/commit-template.txt` — local is nudge, CI (`check --strict`) is the gate.
 
 ## Domain notes (this vault)
 - Documents LLM-wiki ecosystem & design decisions. Sources ingested to raw/notes/ first.
