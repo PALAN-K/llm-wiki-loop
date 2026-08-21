@@ -55,6 +55,11 @@
 - Scripts: package.json wiki:lint + lint:all (lint && wiki:lint) for local 1-line verify
 - Docs: .gitignore already isolates scratch (*.local.md, raw/notes/internal-*); .npmignore isolates vault for npm users
 - Release: llm-wiki-loop@1.3.1 via GitHub Actions release.yml
+## [2026-08-21] update | Self-Improving Loop Guard and Fingerprint Demo (v1.3.1 patch, no bump)
+- Loop: AGENTS.md Loop nudge (scan:skills 1-line/emphasized) + CONTRIBUTING.md Self-Improving Loop section added
+- Scripts: package.json lint:all now chains lint && wiki:lint && scan:skills; scan-skill-candidates.js 1-line when 0, emphasized when ≥2
+- Fingerprint: wiki/topics/cross-platform-cli-and-cicd.md — git:f43f292 + Monitored: bin/cli.js, ci.yml, release.yml (0-token demo)
+- Trust: sync-version now covers README 3 locales, pages.yml checkout@v5, docs placeholder pro wording, branch master unify
 
 
 

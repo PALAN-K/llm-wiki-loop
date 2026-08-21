@@ -41,6 +41,11 @@ npx llm-wiki-loop init
 | **지식 사일로**: 수정 사항이 텍스트로만 남아 에이전트가 같은 오류를 반복 | **자동 스킬화**: 빈번한 수정(2회 이상)이 자동으로 영구적인 `.agents/skills`로 진화 |
 | **프레임워크 비대화**: 무거운 데이터베이스와 복잡한 서버 구성 | **무의존 단순성**: 100% 순수 Markdown (`raw/`, `wiki/`, `archive/`) |
 
+<p align="center">
+  <img src="docs/assets/wheel-lifecycle.svg" alt="4-Stage Self-Improving Loop — Raw → Grounded Compile → Mechanical Check → GC &amp; Skillify" width="860" />
+  <br><em>4-Stage Self-Improving Loop — 1초 ingest → 0-토큰 verify → event GC &amp; 2× skillify (proposal-first)</em>
+</p>
+
 ---
 
 ## 💡 llm-wiki-loop란?
@@ -58,6 +63,11 @@ npx llm-wiki-loop init
 ---
 
 ## 🧬 자기 조직화 아키텍처와 라이프사이클
+
+<p align="center">
+  <a href="https://palan-k.github.io/llm-wiki-loop"><img src="https://img.shields.io/badge/%F0%9F%8C%90_Live_Demo-Interactive_Wheel-00f2fe?style=for-the-badge" alt="Live Interactive Wheel Demo" /></a>
+  &nbsp; <a href="docs/assets/wheel-lifecycle.svg"><img src="https://img.shields.io/badge/SVG-lifecycle--diagram-111827?style=flat-square" alt="SVG lifecycle diagram" /></a>
+</p>
 
 ```mermaid
 flowchart TD

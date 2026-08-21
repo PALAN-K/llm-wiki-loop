@@ -71,7 +71,18 @@ Then `git push origin master` (CI) and `git tag vX.Y.Z && git push origin vX.Y.Z
 
 ---
 
-## 5. Submitting Pull Requests
+## 5. Self-Improving Loop (Proposal-First, No Hooks)
+
+The framework improves itself via two event-based loops (see `skills/wiki-manager/references/self-improving-loop.md`):
+
+1. **Auto-skillify**: same error fixed 2× or same solution applied 2× in one session → propose `SKILL.md` (human approves, merge-first). Verify locally: `npm run scan:skills` — prints 1-line summary when 0, emphasized list when `≥2` (report-only, no daemon).
+2. **Event-based GC**: triggers only on (a) dependency/architecture change, (b) superseding ingest (`Disputed`/`Update`), (c) lint finding stale claim without `Status:` block — never TTL. Stale → `Status: Outdated` block; fully replaced → move to `archive/` + remove from `index.md` + log `archive |` entry.
+
+Check also `npm run wiki:lint` + `Fingerprint: git:<hash>` drift (`check_evidence.py`) for 0-token code freshness.
+
+---
+
+## 6. Submitting Pull Requests
 
 1. Fork the repo and create a feature branch (`git checkout -b feat/my-feature`).
 2. Ensure all tests pass locally (`npm test` and `npm run lint`).

@@ -17,6 +17,7 @@ raw/ (immutable) | wiki/ (LLM-owned) | archive/ (superseded) | index.md | log.md
 ## Verification
 `python3 skills/wiki-manager/scripts/check_evidence.py --strict .` (Windows: `py`) or `npm run wiki:lint`. Zero errors required.
 Commit: `index.md` + `log.md` updated together, checklist in `.github/commit-template.txt` — local is nudge, CI (`check --strict`) is the gate.
+Loop: `npm run scan:skills` — 1-line summary when 0 candidates, emphasized when ≥2 (propose skill, human approves) — report-only, no hooks.
 
 ## Domain notes (this vault)
 - Documents LLM-wiki ecosystem & design decisions. Sources ingested to raw/notes/ first.

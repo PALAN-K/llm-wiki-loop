@@ -32,7 +32,7 @@
     "scripts":  {
                     "lint":  "node --check bin/cli.js && node --check scripts/install.js && node --check scripts/sync-version.js && node --check scripts/scan-skill-candidates.js && py -m py_compile skills/wiki-manager/scripts/check_evidence.py || python -m py_compile skills/wiki-manager/scripts/check_evidence.py || python3 -m py_compile skills/wiki-manager/scripts/check_evidence.py",
                     "wiki:lint":  "node bin/cli.js check --strict .",
-                    "lint:all":  "npm run lint --silent && npm run wiki:lint --silent",
+                    "lint:all":  "npm run lint --silent && npm run wiki:lint --silent && npm run scan:skills --silent",
                     "test":  "node scripts/run-tests.js",
                     "test:cli":  "node bin/cli.js doctor",
                     "sync:version":  "node scripts/sync-version.js",

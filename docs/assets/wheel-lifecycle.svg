@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="860" height="220" viewBox="0 0 860 220" role="img" aria-labelledby="title desc">
+<title id="title">llm-wiki-loop — 4-Stage Self-Improving Lifecycle</title>
+<desc id="desc">Raw → Grounded Compilation → Mechanical Check → Self-Evolution & Archive</desc>
+<style>
+  .bg{fill:#0d1117;stroke:#1f2937;stroke-width:1.5;rx:16}
+  .card{fill:#111827;stroke:#1f2937;stroke-width:1.2;rx:12}
+  .num{fill:#00f2fe;font:700 13px 'Fira Code',monospace}
+  .title{fill:#e5e7eb;font:700 13px Outfit,sans-serif}
+  .desc{fill:#9ca3af;font:400 11px Outfit,sans-serif}
+  .arrow{fill:none;stroke:#00f2fe;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;opacity:.85}
+  .badge{fill:#00f2fe;opacity:.12;rx:6}
+  .badgeText{fill:#00f2fe;font:600 9px 'Fira Code',monospace;letter-spacing:.6px}
+</style>
+<rect class="bg" x="0" y="0" width="860" height="220"/>
+<!-- Stage 1 -->
+<g>
+  <rect class="card" x="16" y="36" width="188" height="148"/>
+  <rect class="badge" x="28" y="48" width="84" height="18"/><text class="badgeText" x="36" y="60">STAGE 1</text>
+  <text class="num" x="28" y="82">01</text><text class="title" x="28" y="100">Immutable Ingest</text>
+  <text class="desc" x="28" y="118">raw/notes/ — never</text><text class="desc" x="28" y="131">edited by LLM</text>
+  <text class="desc" x="28" y="150">Source • Collected</text><text class="desc" x="28" y="163">Published header</text>
+</g>
+<!-- Arrow 1 -->
+<path class="arrow" d="M204 110 L228 110 L222 104 M228 110 L222 116"/>
+<!-- Stage 2 -->
+<g>
+  <rect class="card" x="232" y="36" width="188" height="148"/>
+  <rect class="badge" x="244" y="48" width="84" height="18"/><text class="badgeText" x="252" y="60">STAGE 2</text>
+  <text class="num" x="244" y="82">02</text><text class="title" x="244" y="100">Grounded Compile</text>
+  <text class="desc" x="244" y="118">wiki/ with Raw: links</text><text class="desc" x="244" y="131">&amp; Fingerprint</text>
+  <text class="desc" x="244" y="150">Triage: New / Update</text><text class="desc" x="244" y="163">/ Disputed</text>
+</g>
+<path class="arrow" d="M420 110 L444 110 L438 104 M444 110 L438 116"/>
+<!-- Stage 3 -->
+<g>
+  <rect class="card" x="448" y="36" width="188" height="148"/>
+  <rect class="badge" x="460" y="48" width="84" height="18"/><text class="badgeText" x="468" y="60">STAGE 3</text>
+  <text class="num" x="460" y="82">03</text><text class="title" x="460" y="100">Mechanical Check</text>
+  <text class="desc" x="460" y="118">check_evidence.py</text><text class="desc" x="460" y="131">0 errors required</text>
+  <text class="desc" x="460" y="150">npm run wiki:lint</text><text class="desc" x="460" y="163">+ drift (0-token)</text>
+</g>
+<path class="arrow" d="M636 110 L660 110 L654 104 M660 110 L654 116"/>
+<!-- Stage 4 -->
+<g>
+  <rect class="card" x="664" y="36" width="180" height="148"/>
+  <rect class="badge" x="676" y="48" width="84" height="18"/><text class="badgeText" x="684" y="60">STAGE 4</text>
+  <text class="num" x="676" y="82">04</text><text class="title" x="676" y="100">GC &amp; Skillify</text>
+  <text class="desc" x="676" y="118">Status: Outdated /</text><text class="desc" x="676" y="131">Disputed → archive/</text>
+  <text class="desc" x="676" y="150">2× fix → SKILL.md</text><text class="desc" x="676" y="163">scan:skills (1-line)</text>
+</g>
+<!-- Footer loop arrow -->
+<path class="arrow" d="M754 188 C 430 205, 430 205, 106 188" stroke-dasharray="6 6" opacity="0.5"/>
+<text x="430" y="202" text-anchor="middle" fill="#6b7280" font="500 9px 'Fira Code',monospace" letter-spacing="0.8px">SELF-IMPROVING LOOP — proposal-first, human approves</text>
+</svg>

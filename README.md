@@ -39,6 +39,11 @@ npx llm-wiki-loop init
 | **Knowledge Silos**: Fixes stay as text; agent repeats the same errors | **Auto-Skillification**: Frequent fixes (2+) automatically evolve into permanent `.agents/skills` |
 | **Framework Bloat**: Heavy databases, complex server setups | **Zero-Dependency Simplicity**: 100% pure Markdown (`raw/`, `wiki/`, `archive/`) |
 
+<p align="center">
+  <img src="docs/assets/wheel-lifecycle.svg" alt="4-Stage Self-Improving Loop — Raw → Grounded Compile → Mechanical Check → GC & Skillify" width="860" />
+  <br><em>4-Stage Self-Improving Loop — 1 sec ingest → 0-token verify → event GC & 2× skillify (proposal-first)</em>
+</p>
+
 ---
 
 ## 💡 What is llm-wiki-loop?
@@ -56,6 +61,11 @@ Most LLM notes gradually hallucinate, cite outdated assumptions, or bloat over t
 ---
 
 ## 🧬 Self-Organizing Architecture & Lifecycle
+
+<p align="center">
+  <a href="https://palan-k.github.io/llm-wiki-loop"><img src="https://img.shields.io/badge/%F0%9F%8C%90_Live_Demo-Interactive_Wheel-00f2fe?style=for-the-badge" alt="Live Interactive Wheel Demo" /></a>
+  &nbsp; <a href="docs/assets/wheel-lifecycle.svg"><img src="https://img.shields.io/badge/SVG-lifecycle--diagram-111827?style=flat-square" alt="SVG lifecycle diagram" /></a>
+</p>
 
 ```mermaid
 flowchart TD

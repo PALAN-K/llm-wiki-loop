@@ -67,13 +67,16 @@ function main() {
   const root = vaultArg ? path.resolve(vaultArg) : findVaultRoot(process.cwd());
   const logPath = path.join(root, 'log.md');
   const { candidates } = scan(logPath);
-  console.log(`# Skill candidates scan (${logPath})`);
-  console.log(`Scanned vault: ${root}`);
   if (candidates.length === 0) {
-    console.log('(no candidates - no pattern repeated 2+ times)');
+    // 1-line summary when 0 (quiet), per AGENTS.md Loop nudge
+    console.log(`scan:skills — 0 candidates (no pattern repeated 2+ times)`);
   } else {
-    for (const c of candidates) console.log(`- "${c.key}" → ${c.count} times`);
-    console.log(`\nPropose promoting ${candidates.length} candidate(s) to SKILL.md (human approval required per AGENTS.md:7)`);
+    // Emphasized when ≥2 (human approves)
+    console.log(`\n⚠️  scan:skills — ${candidates.length} candidate(s) detected!`);
+    console.log(`Scanned vault: ${root} (${logPath})`);
+    for (const c of candidates) console.log(`  • "${c.key}" → ${c.count}×`);
+    console.log(`\n→ Propose promoting to SKILL.md (human approval required per AGENTS.md:7)`);
+    console.log(`  Run: npm run scan:skills -- --strict to gate CI (optional)`);
   }
   if (strict && candidates.length > 0) process.exit(1);
   process.exit(0);
