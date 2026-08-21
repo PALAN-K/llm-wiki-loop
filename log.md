@@ -60,6 +60,13 @@
 - Scripts: package.json lint:all now chains lint && wiki:lint && scan:skills; scan-skill-candidates.js 1-line when 0, emphasized when ≥2
 - Fingerprint: wiki/topics/cross-platform-cli-and-cicd.md — git:f43f292 + Monitored: bin/cli.js, ci.yml, release.yml (0-token demo)
 - Trust: sync-version now covers README 3 locales, pages.yml checkout@v5, docs placeholder pro wording, branch master unify
+## [2026-08-21] fix | Windows Non-ASCII Path Native Crash Hotfix (v1.3.2)
+- Incident: Windows Node v24.11.0 + Korean path 집꾸미다견적솔루션 — fs.cpSync({recursive:true}) STATUS_STACK_BUFFER_OVERRUN -1073740791 at bin/cli.js:78 and scripts/install.js (doctor passed, install crashed; Copy-Item succeeded)
+- Fix: Replace fs.cpSync/fs.rmSync recursive with single primary pure-JS loop (fs.lstatSync + Dirent + copyFileSync); correct isSymbolicLink handling (was false via statSync)
+- Raw: raw/notes/2026-08-21-incident-windows-non-ascii-crash.md
+- Updated: wiki/topics/cross-platform-cli-and-cicd.md — Windows Non-ASCII Path Hardening (v1.3.2) section, 7 files payload verified
+- Evidence: 0 suspects / 0 errors / 0 unreferenced after fix; Fingerprint: git:a8d384c -> git:f6987ea + Monitored: bin/cli.js, ci.yml, release.yml
+- Release: llm-wiki-loop@1.3.2 via GitHub Actions release.yml
 
 
 

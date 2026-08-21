@@ -72,10 +72,72 @@ function resolvePython() {
   return null;
 }
 
+// Windows Node v24 + Korean (non-ASCII) paths: fs.cpSync({recursive:true}) triggers
+// STATUS_STACK_BUFFER_OVERRUN (-1073740791) native crash — not catchable via JS try/catch.
+// Single primary path: pure JS loop (readdir+mkdir+copyFile) only, no optimistic fs.cpSync.
+// Uses fs.lstatSync + Dirent for correct symlink handling (statSync follows links, so isSymbolicLink() is always false).
+function rmRecursiveSync(target) {
+  if (!fs.existsSync(target)) return;
+  let st;
+  try { st = fs.lstatSync(target); } catch { return; }
+  if (st.isDirectory() && !st.isSymbolicLink()) {
+    let entries = [];
+    try { entries = fs.readdirSync(target); } catch { entries = []; }
+    for (const e of entries) rmRecursiveSync(path.join(target, e));
+    try { fs.rmdirSync(target); } catch {}
+  } else {
+    try { fs.unlinkSync(target); } catch {}
+  }
+}
+
+function copyRecursiveSync(src, dest) {
+  let st;
+  try { st = fs.lstatSync(src); } catch (e) { throw e; }
+  if (st.isSymbolicLink()) {
+    const linkTarget = fs.readlinkSync(src);
+    fs.mkdirSync(path.dirname(dest), { recursive: true });
+    try { fs.unlinkSync(dest); } catch {}
+    try {
+      fs.symlinkSync(linkTarget, dest, process.platform === 'win32' ? 'junction' : 'file');
+    } catch {
+      // EPERM etc — fallback to file copy
+      try { fs.copyFileSync(src, dest); } catch {}
+    }
+    return;
+  }
+  if (st.isDirectory()) {
+    fs.mkdirSync(dest, { recursive: true });
+    let entries = [];
+    try { entries = fs.readdirSync(src, { withFileTypes: true }); } catch (e) { throw e; }
+    for (const d of entries) {
+      const s = path.join(src, d.name);
+      const t = path.join(dest, d.name);
+      if (d.isSymbolicLink()) {
+        const linkTarget = fs.readlinkSync(s);
+        try { fs.unlinkSync(t); } catch {}
+        try {
+          fs.symlinkSync(linkTarget, t, process.platform === 'win32' ? 'junction' : 'file');
+        } catch {
+          try { fs.copyFileSync(s, t); } catch {}
+        }
+      } else if (d.isDirectory()) {
+        copyRecursiveSync(s, t);
+      } else {
+        fs.mkdirSync(path.dirname(t), { recursive: true });
+        fs.copyFileSync(s, t);
+      }
+    }
+    return;
+  }
+  fs.mkdirSync(path.dirname(dest), { recursive: true });
+  fs.copyFileSync(src, dest);
+}
+
 function copySkill(destDir) {
   const dest = path.join(destDir, 'wiki-manager');
   fs.mkdirSync(destDir, { recursive: true });
-  fs.cpSync(SKILL_SRC, dest, { recursive: true, force: true });
+  rmRecursiveSync(dest);
+  copyRecursiveSync(SKILL_SRC, dest);
   return dest;
 }
 
@@ -207,7 +269,7 @@ function unlinkRootConstitution(projectRoot) {
       const regex = new RegExp(`\\r?\\n?${startEsc}[\\s\\S]*?${endEsc}\\r?\\n?`, 'g');
       const updated = content.replace(regex, '').trim();
       if (updated.length === 0) {
-        fs.rmSync(filePath, { force: true });
+        rmRecursiveSync(filePath);
         console.log(`[✓] Removed empty constitution file: AGENTS.md`);
       } else {
         fs.writeFileSync(filePath, updated + '\n', 'utf-8');
@@ -588,7 +650,7 @@ function runClean(rawArgs = []) {
       console.log(`[!] Directory ${root} lacks vault markers. Skipping encapsulated delete for safety.`);
       return;
     }
-    fs.rmSync(root, { recursive: true, force: true });
+    rmRecursiveSync(root);
     console.log(`[✓] Removed encapsulated vault directory: ${root}`);
     return;
   }
@@ -607,7 +669,7 @@ function runClean(rawArgs = []) {
   for (const item of itemsToRemove) {
     const target = path.join(root, item);
     if (fs.existsSync(target)) {
-      fs.rmSync(target, { recursive: true, force: true });
+      rmRecursiveSync(target);
       console.log(`Removed: ${item}`);
       count++;
     }
@@ -618,12 +680,12 @@ function runClean(rawArgs = []) {
     const content = fs.readFileSync(agentsPath, 'utf-8').trim();
     // If file is empty after unlink or looks like vault template only, remove; else preserve
     if (content.length === 0) {
-      fs.rmSync(agentsPath, { force: true });
+      rmRecursiveSync(agentsPath);
       console.log(`Removed: AGENTS.md (empty)`);
       count++;
     } else if (content.includes('Knowledge Vault Constitution') && content.split('\n').length < 20) {
       // Likely standalone vault template - safe to remove on clean
-      fs.rmSync(agentsPath, { force: true });
+      rmRecursiveSync(agentsPath);
       console.log(`Removed: AGENTS.md`);
       count++;
     } else {

@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.3.2] - 2026-08-21
+
+### 🛡️ Windows Non-ASCII Path Native Crash Hotfix
+
+Field report from `집꾸미다견적솔루션` on Windows Node v24.11.0: `fs.cpSync({recursive:true})` native `STATUS_STACK_BUFFER_OVERRUN (-1073740791)` at `bin/cli.js:78`/`scripts/install.js` — `try/catch` uncatchable, `doctor` passed while `install` crashed.
+
+#### Fixed
+
+- **Safe FS Single Primary** (`bin/cli.js:75`, `scripts/install.js:37`, `scripts/sync-version.js:66`): Replace all `fs.cpSync`/`fs.rmSync({recursive:true})` with pure-JS loop `fs.lstatSync` + `fs.readdirSync({withFileTypes:true})` Dirent (`isDirectory()`, `isSymbolicLink()`) + `fs.copyFileSync`. Previous `fs.statSync` made `isSymbolicLink()` always false; now correctly preserves symlinks with `EPERM` fallback to copy. Payload is 7 files, 48.2 kB / 157.5 kB unpacked, 18 files in tarball, <10ms overhead — verified via isolated Korean path `집꾸미다견적솔루션-테스트` `init`/`install`/`clean` all exit 0 content-equal.
+- **Vault Sync**: New `raw/notes/2026-08-21-incident-windows-non-ascii-crash.md` grounding the incident (`2026-08-21`, `v24.11.0`, `-1073740791`, `STATUS_STACK_BUFFER_OVERRUN`, `7 files`), updated `wiki/topics/cross-platform-cli-and-cicd.md` with *Windows Non-ASCII Path Hardening (v1.3.2)* section and Raw link, `log.md` hotfix entry, `Fingerprint: git:a8d384c -> git:<pending>` (monitored `bin/cli.js`, `ci.yml`, `release.yml`).
+
+#### Verified
+
+- `npm run lint` exit 0, `npm test` 25 tests passing, `npm pack --dry-run` 18 files, `Copy-Item -Recurse -Force` and `copyFileSync` loop both succeeded in field, Korean-path E2E now passes.
+
+---
+
 ## [1.3.1] - 2026-08-21
 
 ### 🔒 Dual-Tier Commit Template and wiki:lint Guard (Patch)

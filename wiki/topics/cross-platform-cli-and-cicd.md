@@ -1,7 +1,7 @@
 # Cross-Platform CLI and CI/CD Architecture
 
-> Raw: [Note](../../raw/notes/2026-08-16-cli-architecture-and-cicd-matrix.md); [UX Note](../../raw/notes/2026-08-17-v1-1-1-release-ux-improvements.md)
-> Fingerprint: git:a8d384c
+> Raw: [Note](../../raw/notes/2026-08-16-cli-architecture-and-cicd-matrix.md); [UX Note](../../raw/notes/2026-08-17-v1-1-1-release-ux-improvements.md); [Incident](../../raw/notes/2026-08-21-incident-windows-non-ascii-crash.md)
+> Fingerprint: git:f6987ea
 > Monitored: bin/cli.js, .github/workflows/ci.yml, .github/workflows/release.yml
 > Sources: Project Architecture Log (palank-llm-wiki)
 
@@ -26,6 +26,12 @@ The GitHub Actions workflow implements a 3-stage validation pipeline:
 3. **Stage 3 (Evidence Check)**: Invariant verification on the repository vault.
 
 The matrix tests across Ubuntu, Windows, and macOS with Node.js versions 18.x and 20.x, and Python versions 3.9, 3.11, and 3.12.
+
+## Windows Non-ASCII Path Hardening (v1.3.2)
+
+On 2026-08-21, installation of llm-wiki-loop@1.3.1 failed on Windows Node v24.11.0 when the project path contained Korean characters (집꾸미다견적솔루션). The call `fs.cpSync(SKILL_SRC, dest, { recursive: true, force: true })` in `bin/cli.js:78` and `scripts/install.js` plus `fs.rmSync(dest, { recursive: true, force: true })` triggered a native `STATUS_STACK_BUFFER_OVERRUN` crash with exit code -1073740791, not catchable via JavaScript `try/catch`. `llm-wiki doctor` passed, while `llm-wiki install` crashed; manual `Copy-Item -Recurse -Force` and per-file `fs.copyFileSync` loop succeeded.
+
+Fixed in 1.3.2 by replacing all recursive `fs.cpSync`/`fs.rmSync` with a single primary pure-JS loop: `fs.lstatSync` + `fs.readdirSync({ withFileTypes: true })` Dirent handling (`isDirectory()`, `isSymbolicLink()`) and `fs.copyFileSync` per file. Previous `fs.statSync` made `isSymbolicLink()` always false; now correctly preserves symlinks (fallback to copy on `EPERM`). The skill payload is 7 files, total package size 48.2 kB, unpacked size 157.5 kB, total files 18 — overhead <10ms. Verified with `npm run lint` exit 0, `npm test` 25 tests passing, `npm pack --dry-run` 18 files, and isolated Korean path `집꾸미다견적솔루션-테스트` `init`/`install`/`clean` all exit 0 with 7 files content-equal.
 
 ## Distribution Isolation
 To maintain clean distribution boundaries:

@@ -63,10 +63,24 @@ function syncSitemap() {
   }
 }
 
+function rmRecursiveSync(target) {
+  if (!fs.existsSync(target)) return;
+  let st;
+  try { st = fs.lstatSync(target); } catch { return; }
+  if (st.isDirectory() && !st.isSymbolicLink()) {
+    let entries = [];
+    try { entries = fs.readdirSync(target); } catch { entries = []; }
+    for (const e of entries) rmRecursiveSync(path.join(target, e));
+    try { fs.rmdirSync(target); } catch {}
+  } else {
+    try { fs.unlinkSync(target); } catch {}
+  }
+}
+
 function cleanPycache() {
   const p = path.join(root, 'skills', 'wiki-manager', 'scripts', '__pycache__');
   if (fs.existsSync(p)) {
-    fs.rmSync(p, { recursive: true, force: true });
+    rmRecursiveSync(p);
     console.log(`[sync] cleaned ${path.relative(root, p)}`);
   }
 }

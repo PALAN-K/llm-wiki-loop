@@ -34,10 +34,70 @@ function isTruthy(value) {
   return value === "true" || value === "1";
 }
 
+// Windows Node v24 + Korean (non-ASCII) paths: fs.cpSync({recursive:true}) triggers
+// STATUS_STACK_BUFFER_OVERRUN (-1073740791) native crash — not catchable via JS try/catch.
+// Single primary path: pure JS loop only (fs.lstatSync + Dirent).
+function rmRecursiveSync(target) {
+  if (!fs.existsSync(target)) return;
+  let st;
+  try { st = fs.lstatSync(target); } catch { return; }
+  if (st.isDirectory() && !st.isSymbolicLink()) {
+    let entries = [];
+    try { entries = fs.readdirSync(target); } catch { entries = []; }
+    for (const e of entries) rmRecursiveSync(path.join(target, e));
+    try { fs.rmdirSync(target); } catch {}
+  } else {
+    try { fs.unlinkSync(target); } catch {}
+  }
+}
+
+function copyRecursiveSync(src, dest) {
+  let st;
+  try { st = fs.lstatSync(src); } catch (e) { throw e; }
+  if (st.isSymbolicLink()) {
+    const linkTarget = fs.readlinkSync(src);
+    fs.mkdirSync(path.dirname(dest), { recursive: true });
+    try { fs.unlinkSync(dest); } catch {}
+    try {
+      fs.symlinkSync(linkTarget, dest, process.platform === "win32" ? "junction" : "file");
+    } catch {
+      try { fs.copyFileSync(src, dest); } catch {}
+    }
+    return;
+  }
+  if (st.isDirectory()) {
+    fs.mkdirSync(dest, { recursive: true });
+    let entries = [];
+    try { entries = fs.readdirSync(src, { withFileTypes: true }); } catch (e) { throw e; }
+    for (const d of entries) {
+      const s = path.join(src, d.name);
+      const t = path.join(dest, d.name);
+      if (d.isSymbolicLink()) {
+        const linkTarget = fs.readlinkSync(s);
+        try { fs.unlinkSync(t); } catch {}
+        try {
+          fs.symlinkSync(linkTarget, t, process.platform === "win32" ? "junction" : "file");
+        } catch {
+          try { fs.copyFileSync(s, t); } catch {}
+        }
+      } else if (d.isDirectory()) {
+        copyRecursiveSync(s, t);
+      } else {
+        fs.mkdirSync(path.dirname(t), { recursive: true });
+        fs.copyFileSync(s, t);
+      }
+    }
+    return;
+  }
+  fs.mkdirSync(path.dirname(dest), { recursive: true });
+  fs.copyFileSync(src, dest);
+}
+
 function copySkill(destDir) {
   const dest = path.join(destDir, "wiki-manager");
   fs.mkdirSync(destDir, { recursive: true });
-  fs.cpSync(SKILL_SRC, dest, { recursive: true, force: true });
+  rmRecursiveSync(dest);
+  copyRecursiveSync(SKILL_SRC, dest);
   return dest;
 }
 
