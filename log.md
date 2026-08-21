@@ -65,8 +65,11 @@
 - Fix: Replace fs.cpSync/fs.rmSync recursive with single primary pure-JS loop (fs.lstatSync + Dirent + copyFileSync); correct isSymbolicLink handling (was false via statSync)
 - Raw: raw/notes/2026-08-21-incident-windows-non-ascii-crash.md
 - Updated: wiki/topics/cross-platform-cli-and-cicd.md — Windows Non-ASCII Path Hardening (v1.3.2) section, 7 files payload verified
-- Evidence: 0 suspects / 0 errors / 0 unreferenced after fix; Fingerprint: git:a8d384c -> git:1691497 + Monitored: bin/cli.js, ci.yml, release.yml
+- Evidence: 0 suspects / 0 errors / 0 unreferenced after fix; Fingerprint: git:a8d384c -> git:1a8ecc1 + Monitored: bin/cli.js, ci.yml, release.yml
 - Release: llm-wiki-loop@1.3.2 via GitHub Actions release.yml
+## [2026-08-21] fix | Release Workflow Fetch-Depth Hotfix (v1.3.2 patch, no bump)
+- Fix: .github/workflows/release.yml — add fetch-depth: 0 to Checkout step to resolve fingerprint drift with shallow tag checkout (was depth 1, caused invalid hash 1691497)
+- Fingerprint: git:1691497 -> git:1a8ecc1 + Monitored: bin/cli.js, ci.yml, release.yml (no content drift, CI now green)
 
 
 
