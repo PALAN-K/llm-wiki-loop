@@ -1,7 +1,7 @@
 # Cross-Platform CLI and CI/CD Architecture
 
 > Raw: [Note](../../raw/notes/2026-08-16-cli-architecture-and-cicd-matrix.md); [UX Note](../../raw/notes/2026-08-17-v1-1-1-release-ux-improvements.md); [Incident](../../raw/notes/2026-08-21-incident-windows-non-ascii-crash.md)
-> Fingerprint: git:f6987ea
+> Fingerprint: git:1691497
 > Monitored: bin/cli.js, .github/workflows/ci.yml, .github/workflows/release.yml
 > Sources: Project Architecture Log (palank-llm-wiki)
 

@@ -65,7 +65,7 @@
 - Fix: Replace fs.cpSync/fs.rmSync recursive with single primary pure-JS loop (fs.lstatSync + Dirent + copyFileSync); correct isSymbolicLink handling (was false via statSync)
 - Raw: raw/notes/2026-08-21-incident-windows-non-ascii-crash.md
 - Updated: wiki/topics/cross-platform-cli-and-cicd.md — Windows Non-ASCII Path Hardening (v1.3.2) section, 7 files payload verified
-- Evidence: 0 suspects / 0 errors / 0 unreferenced after fix; Fingerprint: git:a8d384c -> git:f6987ea + Monitored: bin/cli.js, ci.yml, release.yml
+- Evidence: 0 suspects / 0 errors / 0 unreferenced after fix; Fingerprint: git:a8d384c -> git:1691497 + Monitored: bin/cli.js, ci.yml, release.yml
 - Release: llm-wiki-loop@1.3.2 via GitHub Actions release.yml
 
 
