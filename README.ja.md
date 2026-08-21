@@ -30,6 +30,11 @@
 npx llm-wiki-loop init
 ```
 
+<p align="center">
+  <img src="docs/assets/terminal-demo.gif" alt="Terminal — npx llm-wiki-loop init typing → vault scaffold in 0.8s" width="860" />
+  <br><em>↑ Actual terminal — $ npx llm-wiki-loop init → 0.8s vault scaffold → 7 agents equipped (860×360, 270KB MP4 / 104KB GIF)</em>
+</p>
+
 ---
 
 ### ⚡ なぜ通常のAIメモは失敗するのか vs. `llm-wiki-loop`
@@ -65,56 +70,10 @@ npx llm-wiki-loop init
 ## 🧬 自己組織化アーキテクチャとライフサイクル
 
 <p align="center">
-  <a href="https://palan-k.github.io/llm-wiki-loop"><img src="https://img.shields.io/badge/%F0%9F%8C%90_Live_Demo-Interactive_Wheel-00f2fe?style=for-the-badge" alt="Live Interactive Wheel Demo" /></a>
-  &nbsp; <a href="docs/assets/wheel-lifecycle.svg"><img src="https://img.shields.io/badge/SVG-lifecycle--diagram-111827?style=flat-square" alt="SVG lifecycle diagram" /></a>
+  <img src="docs/assets/hero-lifecycle.gif" alt="4-Stage Self-Improving Loop — 4.5s motion: Raw → Grounded Compile → Mechanical Check → GC & Skillify" width="860" />
+  <br><em>Lifecycle in 4.5s — cards slide, code types, drift flashes (860×220, 293KB MP4 / 376KB GIF)</em>
+  <br><a href="https://palan-k.github.io/llm-wiki-loop"><img src="https://img.shields.io/badge/%F0%9F%8C%90_Live_Demo-Interactive_Wheel-00f2fe?style=for-the-badge" alt="Live Interactive Wheel Demo" /></a>
 </p>
-
-```mermaid
-flowchart TD
-    subgraph S1["1. Immutable Ingestion"]
-        Raw["raw/notes/ & raw/data/
-(Original benchmark runs, papers, chat logs)"]
-    end
-
-    subgraph S2["2. Grounded Compilation Loop"]
-        Agent["AI Agent + wiki-manager Skill
-(Claude / Cursor / Codex / Gemini)"]
-        Wiki["wiki/concepts/ & wiki/topics/
-(LLM-synthesized knowledge with Raw: links & Fingerprints)"]
-        Index["index.md & log.md
-(Progressive disclosure & audit trail)"]
-    end
-
-    subgraph S3["3. Mechanical Verification Engine"]
-        Engine["check_evidence.py
-(Grounding Invariant & Drift Engine)"]
-        Verdict{"0 Errors & Fresh?"}
-        Pass["✅ 100% Grounded & Code Synced"]
-        Fail["❌ Ungrounded Claim / Code Drift Detected"]
-    end
-
-    subgraph S4["4. Self-Evolution & Active GC"]
-        Dispute["Status: Outdated / Disputed
-(Preserve historical context)"]
-        Archive["archive/
-(Superseded snapshots, isolated from index)"]
-        Skillify["Auto-Skillification Engine
-(Promote repeated procedures into SKILL.md)"]
-    end
-
-    Raw -->|Triage: New / Update / Disputed| Agent
-    Agent -->|Write with exact Raw: links & Fingerprint| Wiki
-    Agent -->|Append state transitions| Index
-    Wiki -->|Verify literals & monitored paths| Engine
-    Raw -->|Match against source body| Engine
-    Engine --> Verdict
-    Verdict -->|Yes| Pass
-    Verdict -->|No| Fail
-    Wiki -->|Contradicted or code drifted| Dispute
-    Dispute -->|Event-driven GC| Archive
-    Index -->|Detect 2+ recurring patterns| Skillify
-    Skillify -->|Human approves| Agent
-```
 
 ---
 
@@ -128,6 +87,33 @@ flowchart TD
 | **ボルトの整理** | 手動キュレーション / 肥大化 | **イベント駆動GC**: 自己組織化するプログレッシブディスクロージャー（`index.md`） |
 | **エージェントの可搬性** | ベンダーロックイン（単一IDE） | **ユニバーサルアダプター**: 7つ以上のAIエージェントランタイムへワンクリックでインストール |
 | **自己進化** | 静的なプロンプト | **自動スキル化**: 頻繁なワークフローが自動化されたエージェントスキルへ進化 |
+
+---
+
+## 🎬 機能デモ — テキスト + GIF 1:1
+
+<table>
+<tr>
+<td align="center" width="50%">
+<img src="docs/assets/commit-gate.gif" alt="Commit gate — 0 errors, index/log together" width="420" /><br>
+<b>A. Commit Gate</b><br><sub>git commit → <code>check_evidence 0 errors</code> → <code>index.md+log.md</code> 同時更新</sub>
+</td>
+<td align="center" width="50%">
+<img src="docs/assets/drift-detection.gif" alt="Drift detection — 0.01s" width="420" /><br>
+<b>B. Drift Detection</b><br><sub>編集 → <code>git diff</code> 0.01秒 → <code>Status: Outdated</code></sub>
+</td>
+</tr>
+<tr>
+<td align="center" width="50%">
+<img src="docs/assets/skill-evolution.gif" alt="Skill evolution — 2× → scan:skills" width="420" /><br>
+<b>C. Skill Evolution</b><br><sub><code>log.md</code> 2回 → <code>scan:skills</code> → <code>.agents/skills/</code></sub>
+</td>
+<td align="center" width="50%">
+<img src="docs/assets/multi-agent.gif" alt="Multi-agent — 7 agents" width="420" /><br>
+<b>D. Multi-Agent</b><br><sub><code>npx llm-wiki-loop init</code> → 7エージェント 1秒</sub>
+</td>
+</tr>
+</table>
 
 ---
 

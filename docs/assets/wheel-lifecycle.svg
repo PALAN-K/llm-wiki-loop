@@ -1,54 +1,74 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="860" height="220" viewBox="0 0 860 220" role="img" aria-labelledby="title desc">
-<title id="title">llm-wiki-loop — 4-Stage Self-Improving Lifecycle</title>
-<desc id="desc">Raw → Grounded Compilation → Mechanical Check → Self-Evolution & Archive</desc>
-<style>
-  .bg{fill:#0d1117;stroke:#1f2937;stroke-width:1.5;rx:16}
-  .card{fill:#111827;stroke:#1f2937;stroke-width:1.2;rx:12}
-  .num{fill:#00f2fe;font:700 13px 'Fira Code',monospace}
-  .title{fill:#e5e7eb;font:700 13px Outfit,sans-serif}
-  .desc{fill:#9ca3af;font:400 11px Outfit,sans-serif}
-  .arrow{fill:none;stroke:#00f2fe;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;opacity:.85}
-  .badge{fill:#00f2fe;opacity:.12;rx:6}
-  .badgeText{fill:#00f2fe;font:600 9px 'Fira Code',monospace;letter-spacing:.6px}
-</style>
-<rect class="bg" x="0" y="0" width="860" height="220"/>
-<!-- Stage 1 -->
-<g>
-  <rect class="card" x="16" y="36" width="188" height="148"/>
-  <rect class="badge" x="28" y="48" width="84" height="18"/><text class="badgeText" x="36" y="60">STAGE 1</text>
-  <text class="num" x="28" y="82">01</text><text class="title" x="28" y="100">Immutable Ingest</text>
-  <text class="desc" x="28" y="118">raw/notes/ — never</text><text class="desc" x="28" y="131">edited by LLM</text>
-  <text class="desc" x="28" y="150">Source • Collected</text><text class="desc" x="28" y="163">Published header</text>
-</g>
-<!-- Arrow 1 -->
-<path class="arrow" d="M204 110 L228 110 L222 104 M228 110 L222 116"/>
-<!-- Stage 2 -->
-<g>
-  <rect class="card" x="232" y="36" width="188" height="148"/>
-  <rect class="badge" x="244" y="48" width="84" height="18"/><text class="badgeText" x="252" y="60">STAGE 2</text>
-  <text class="num" x="244" y="82">02</text><text class="title" x="244" y="100">Grounded Compile</text>
-  <text class="desc" x="244" y="118">wiki/ with Raw: links</text><text class="desc" x="244" y="131">&amp; Fingerprint</text>
-  <text class="desc" x="244" y="150">Triage: New / Update</text><text class="desc" x="244" y="163">/ Disputed</text>
-</g>
-<path class="arrow" d="M420 110 L444 110 L438 104 M444 110 L438 116"/>
-<!-- Stage 3 -->
-<g>
-  <rect class="card" x="448" y="36" width="188" height="148"/>
-  <rect class="badge" x="460" y="48" width="84" height="18"/><text class="badgeText" x="468" y="60">STAGE 3</text>
-  <text class="num" x="460" y="82">03</text><text class="title" x="460" y="100">Mechanical Check</text>
-  <text class="desc" x="460" y="118">check_evidence.py</text><text class="desc" x="460" y="131">0 errors required</text>
-  <text class="desc" x="460" y="150">npm run wiki:lint</text><text class="desc" x="460" y="163">+ drift (0-token)</text>
-</g>
-<path class="arrow" d="M636 110 L660 110 L654 104 M660 110 L654 116"/>
-<!-- Stage 4 -->
-<g>
-  <rect class="card" x="664" y="36" width="180" height="148"/>
-  <rect class="badge" x="676" y="48" width="84" height="18"/><text class="badgeText" x="684" y="60">STAGE 4</text>
-  <text class="num" x="676" y="82">04</text><text class="title" x="676" y="100">GC &amp; Skillify</text>
-  <text class="desc" x="676" y="118">Status: Outdated /</text><text class="desc" x="676" y="131">Disputed → archive/</text>
-  <text class="desc" x="676" y="150">2× fix → SKILL.md</text><text class="desc" x="676" y="163">scan:skills (1-line)</text>
-</g>
-<!-- Footer loop arrow -->
-<path class="arrow" d="M754 188 C 430 205, 430 205, 106 188" stroke-dasharray="6 6" opacity="0.5"/>
-<text x="430" y="202" text-anchor="middle" fill="#6b7280" font="500 9px 'Fira Code',monospace" letter-spacing="0.8px">SELF-IMPROVING LOOP — proposal-first, human approves</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 220" width="100%" height="220" role="img" aria-labelledby="title desc">
+  <title id="title">llm-wiki-loop — 4-Stage Self-Improving Lifecycle</title>
+  <desc id="desc">Raw Ingestion → Grounded Compilation → Mechanical Check → Self-Evolution and Archive</desc>
+  
+  <!-- Outer Background Canvas -->
+  <rect x="1" y="1" width="858" height="218" rx="16" fill="#0d1117" stroke="#30363d" stroke-width="1.5"/>
+  
+  <!-- STAGE 1: Immutable Ingest -->
+  <g transform="translate(16, 30)">
+    <rect x="0" y="0" width="188" height="146" rx="10" fill="#161b22" stroke="#30363d" stroke-width="1.2"/>
+    <rect x="12" y="12" width="68" height="18" rx="4" fill="#00f2fe" fill-opacity="0.15"/>
+    <text x="46" y="24" text-anchor="middle" fill="#00f2fe" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="9" font-weight="700" letter-spacing="0.5">STAGE 1</text>
+    <text x="12" y="52" fill="#00f2fe" font-family="'Courier New', Courier, monospace" font-size="14" font-weight="700">01</text>
+    <text x="36" y="52" fill="#f0f6fc" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="700">Immutable Ingest</text>
+    <text x="12" y="74" fill="#8b949e" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11">raw/notes/ &amp; raw/data/</text>
+    <text x="12" y="90" fill="#ff7b72" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11">Never edited by LLM</text>
+    <text x="12" y="112" fill="#8b949e" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10">Source • Collected • Notes</text>
+    <text x="12" y="128" fill="#58a6ff" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10">Immutable source of truth</text>
+  </g>
+  
+  <!-- Arrow 1 -> 2 -->
+  <path d="M208 103 L226 103 M220 97 L226 103 L220 109" fill="none" stroke="#00f2fe" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- STAGE 2: Grounded Compile -->
+  <g transform="translate(230, 30)">
+    <rect x="0" y="0" width="188" height="146" rx="10" fill="#161b22" stroke="#30363d" stroke-width="1.2"/>
+    <rect x="12" y="12" width="68" height="18" rx="4" fill="#00f2fe" fill-opacity="0.15"/>
+    <text x="46" y="24" text-anchor="middle" fill="#00f2fe" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="9" font-weight="700" letter-spacing="0.5">STAGE 2</text>
+    <text x="12" y="52" fill="#00f2fe" font-family="'Courier New', Courier, monospace" font-size="14" font-weight="700">02</text>
+    <text x="36" y="52" fill="#f0f6fc" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="700">Grounded Compile</text>
+    <text x="12" y="74" fill="#8b949e" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11">wiki/ with verbatim Raw:</text>
+    <text x="12" y="90" fill="#7ee787" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11">Fingerprint: git:hash</text>
+    <text x="12" y="112" fill="#8b949e" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10">Triage: New / Update / Disp</text>
+    <text x="12" y="128" fill="#58a6ff" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10">Multi-agent compilation</text>
+  </g>
+  
+  <!-- Arrow 2 -> 3 -->
+  <path d="M422 103 L440 103 M434 97 L440 103 L434 109" fill="none" stroke="#00f2fe" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- STAGE 3: Mechanical Check -->
+  <g transform="translate(444, 30)">
+    <rect x="0" y="0" width="188" height="146" rx="10" fill="#161b22" stroke="#30363d" stroke-width="1.2"/>
+    <rect x="12" y="12" width="68" height="18" rx="4" fill="#00f2fe" fill-opacity="0.15"/>
+    <text x="46" y="24" text-anchor="middle" fill="#00f2fe" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="9" font-weight="700" letter-spacing="0.5">STAGE 3</text>
+    <text x="12" y="52" fill="#00f2fe" font-family="'Courier New', Courier, monospace" font-size="14" font-weight="700">03</text>
+    <text x="36" y="52" fill="#f0f6fc" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="700">Mechanical Check</text>
+    <text x="12" y="74" fill="#8b949e" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11">check_evidence.py</text>
+    <text x="12" y="90" fill="#7ee787" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11">0 evidence errors required</text>
+    <text x="12" y="112" fill="#8b949e" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10">npm run wiki:lint --strict</text>
+    <text x="12" y="128" fill="#58a6ff" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10">0.01s Code Drift Detection</text>
+  </g>
+  
+  <!-- Arrow 3 -> 4 -->
+  <path d="M636 103 L654 103 M648 97 L654 103 L648 109" fill="none" stroke="#00f2fe" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- STAGE 4: Self-Evolution & GC -->
+  <g transform="translate(658, 30)">
+    <rect x="0" y="0" width="186" height="146" rx="10" fill="#161b22" stroke="#30363d" stroke-width="1.2"/>
+    <rect x="12" y="12" width="68" height="18" rx="4" fill="#00f2fe" fill-opacity="0.15"/>
+    <text x="46" y="24" text-anchor="middle" fill="#00f2fe" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="9" font-weight="700" letter-spacing="0.5">STAGE 4</text>
+    <text x="12" y="52" fill="#00f2fe" font-family="'Courier New', Courier, monospace" font-size="14" font-weight="700">04</text>
+    <text x="36" y="52" fill="#f0f6fc" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="700">GC &amp; Skillify</text>
+    <text x="12" y="74" fill="#8b949e" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11">Status: Outdated / Disp</text>
+    <text x="12" y="90" fill="#7ee787" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11">2x error -> .agents/skills</text>
+    <text x="12" y="112" fill="#8b949e" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10">archive/ isolation (No TTL)</text>
+    <text x="12" y="128" fill="#58a6ff" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10">scan:skills candidate report</text>
+  </g>
+  
+  <!-- Bottom Loop Track Arrow (Return Loop) -->
+  <path d="M751 182 C 430 206, 430 206, 110 182" fill="none" stroke="#00f2fe" stroke-width="1.5" stroke-dasharray="5 5" opacity="0.6"/>
+  <polygon points="106,182 114,178 114,186" fill="#00f2fe" opacity="0.8"/>
+  <rect x="270" y="193" width="320" height="18" rx="4" fill="#0d1117"/>
+  <text x="430" y="206" text-anchor="middle" fill="#8b949e" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" font-weight="600" letter-spacing="0.5">SELF-IMPROVING LIFECYCLE (Proposal-First &amp; Audit Trail)</text>
 </svg>
