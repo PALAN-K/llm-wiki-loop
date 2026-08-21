@@ -29,8 +29,8 @@ npx llm-wiki-loop init
 ```
 
 <p align="center">
-  <img src="docs/assets/terminal-demo.gif" alt="Terminal — npx llm-wiki-loop init typing → vault scaffold in 0.8s" width="860" />
-  <br><em>↑ Actual terminal — $ npx llm-wiki-loop init → 0.8s vault scaffold → 7 agents equipped (Remotion 860×360, 270KB MP4 / 104KB GIF)</em>
+  <img src="docs/assets/impact-hero.gif" alt="Impact hero — npx llm-wiki-loop init → check --strict → scan:skills in 22s (860×484, 1.0MB MP4 / 273KB GIF)" width="860" />
+  <br><em>↑ One take — $ npx llm-wiki-loop init (0.8s, 7 agents) → $ check --strict (0 errors, 0 drifted) → $ scan:skills (1 candidate) — 22s, 860×484</em>
 </p>
 
 ---
@@ -90,28 +90,25 @@ Most LLM notes gradually hallucinate, cite outdated assumptions, or bloat over t
 
 ## 🎬 Feature Demos — Text + GIF 1:1
 
-<table>
-<tr>
-<td align="center" width="50%">
-<img src="docs/assets/commit-gate.gif" alt="Commit gate — git commit → check_evidence 0 errors, index/log updated together" width="420" /><br>
-<b>A. Commit Gate</b><br><sub>git commit → <code>check_evidence 0 errors</code> → <code>index.md+log.md</code> together (local nudge, CI gate)</sub>
-</td>
-<td align="center" width="50%">
-<img src="docs/assets/drift-detection.gif" alt="Drift detection — 0.01s git diff → Status Outdated" width="420" /><br>
-<b>B. Drift Detection</b><br><sub>edit <code>bin/cli.js</code> → <code>git diff</code> 0.01s → <code>Status: Outdated</code> bump</sub>
-</td>
-</tr>
-<tr>
-<td align="center" width="50%">
-<img src="docs/assets/skill-evolution.gif" alt="Skill evolution — 2× log repeat → scan:skills → .agents/skills" width="420" /><br>
-<b>C. Skill Evolution</b><br><sub><code>log.md</code> 2× repeat → <code>scan:skills</code> emphasized → <code>.agents/skills/</code></sub>
-</td>
-<td align="center" width="50%">
-<img src="docs/assets/multi-agent.gif" alt="Multi-agent — 7 agents 1-click stamp" width="420" /><br>
-<b>D. Multi-Agent</b><br><sub><code>npx llm-wiki-loop init</code> → 7 agents stamped in 1s</sub>
-</td>
-</tr>
-</table>
+<p align="center">
+  <img src="docs/assets/commit-gate.gif" alt="Commit gate — git commit → check_evidence 0 errors, index/log updated together" width="860" /><br>
+  <b>A. Commit Gate</b><br><sub>git commit → <code>check_evidence 0 errors</code> → <code>index.md+log.md</code> together (local nudge, CI gate)</sub>
+</p>
+
+<p align="center">
+  <img src="docs/assets/drift-detection.gif" alt="Drift detection — 0.01s git diff → Status Outdated" width="860" /><br>
+  <b>B. Drift Detection</b><br><sub>edit <code>bin/cli.js</code> → <code>git diff</code> 0.01s → <code>Status: Outdated</code> bump</sub>
+</p>
+
+<p align="center">
+  <img src="docs/assets/skill-evolution.gif" alt="Skill evolution — 2× log repeat → scan:skills → .agents/skills" width="860" /><br>
+  <b>C. Skill Evolution</b><br><sub><code>log.md</code> 2× repeat → <code>scan:skills</code> emphasized → <code>.agents/skills/</code></sub>
+</p>
+
+<p align="center">
+  <img src="docs/assets/multi-agent.gif" alt="Multi-agent — 7 agents 1-click stamp" width="860" /><br>
+  <b>D. Multi-Agent</b><br><sub><code>npx llm-wiki-loop init</code> → 7 agents stamped in 1s</sub>
+</p>
 
 ---
 

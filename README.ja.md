@@ -31,8 +31,8 @@ npx llm-wiki-loop init
 ```
 
 <p align="center">
-  <img src="docs/assets/terminal-demo.gif" alt="Terminal — npx llm-wiki-loop init typing → vault scaffold in 0.8s" width="860" />
-  <br><em>↑ Actual terminal — $ npx llm-wiki-loop init → 0.8s vault scaffold → 7 agents equipped (860×360, 270KB MP4 / 104KB GIF)</em>
+  <img src="docs/assets/impact-hero.gif" alt="Impact hero — npx llm-wiki-loop init → check --strict → scan:skills in 22s (860×484, 1.0MB MP4 / 273KB GIF)" width="860" />
+  <br><em>↑ One take — $ npx llm-wiki-loop init (0.8s, 7 agents) → $ check --strict (0 errors) → $ scan:skills (1 candidate) — 22s, 860×484</em>
 </p>
 
 ---
@@ -92,28 +92,25 @@ npx llm-wiki-loop init
 
 ## 🎬 機能デモ — テキスト + GIF 1:1
 
-<table>
-<tr>
-<td align="center" width="50%">
-<img src="docs/assets/commit-gate.gif" alt="Commit gate — 0 errors, index/log together" width="420" /><br>
-<b>A. Commit Gate</b><br><sub>git commit → <code>check_evidence 0 errors</code> → <code>index.md+log.md</code> 同時更新</sub>
-</td>
-<td align="center" width="50%">
-<img src="docs/assets/drift-detection.gif" alt="Drift detection — 0.01s" width="420" /><br>
-<b>B. Drift Detection</b><br><sub>編集 → <code>git diff</code> 0.01秒 → <code>Status: Outdated</code></sub>
-</td>
-</tr>
-<tr>
-<td align="center" width="50%">
-<img src="docs/assets/skill-evolution.gif" alt="Skill evolution — 2× → scan:skills" width="420" /><br>
-<b>C. Skill Evolution</b><br><sub><code>log.md</code> 2回 → <code>scan:skills</code> → <code>.agents/skills/</code></sub>
-</td>
-<td align="center" width="50%">
-<img src="docs/assets/multi-agent.gif" alt="Multi-agent — 7 agents" width="420" /><br>
-<b>D. Multi-Agent</b><br><sub><code>npx llm-wiki-loop init</code> → 7エージェント 1秒</sub>
-</td>
-</tr>
-</table>
+<p align="center">
+  <img src="docs/assets/commit-gate.gif" alt="Commit gate — 0 errors, index/log together" width="860" /><br>
+  <b>A. Commit Gate</b><br><sub>git commit → <code>check_evidence 0 errors</code> → <code>index.md+log.md</code> 同時更新</sub>
+</p>
+
+<p align="center">
+  <img src="docs/assets/drift-detection.gif" alt="Drift detection — 0.01s" width="860" /><br>
+  <b>B. Drift Detection</b><br><sub>編集 → <code>git diff</code> 0.01秒 → <code>Status: Outdated</code></sub>
+</p>
+
+<p align="center">
+  <img src="docs/assets/skill-evolution.gif" alt="Skill evolution — 2× → scan:skills" width="860" /><br>
+  <b>C. Skill Evolution</b><br><sub><code>log.md</code> 2回 → <code>scan:skills</code> → <code>.agents/skills/</code></sub>
+</p>
+
+<p align="center">
+  <img src="docs/assets/multi-agent.gif" alt="Multi-agent — 7 agents" width="860" /><br>
+  <b>D. Multi-Agent</b><br><sub><code>npx llm-wiki-loop init</code> → 7エージェント 1秒</sub>
+</p>
 
 ---
 
